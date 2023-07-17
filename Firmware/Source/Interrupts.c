@@ -8,7 +8,6 @@
 #include "Global.h"
 #include "Board.h"
 #include "ZwDMA.h"
-#include "PWM.h"
 
 // Variables
 static volatile bool VoltageSamplingDone = false;
@@ -60,9 +59,6 @@ void TIM1_UP_TIM16_IRQHandler()
 {
 	if(TIM_StatusCheck(TIM1))
 	{
-		if(++PWMTimerCounter == PWM_SINE_COUNTER_MAX)
-			PWMTimerCounter = 0;
-
 		ADC_SamplingStart(ADC1);
 		TIM_StatusClear(TIM1);
 	}
@@ -98,9 +94,11 @@ void INT_CheckCompleteCondition()
 		VoltageSamplingDone = CurrentSamplingDone = false;
 		LL_DMAReload();
 
+		/*
 		uint16_t Problem;
 		if(PWM_SinRegulation(&Problem))
 			CONTROL_ProcessPWMStop(Problem);
+		*/
 	}
 }
 //-----------------------------------------

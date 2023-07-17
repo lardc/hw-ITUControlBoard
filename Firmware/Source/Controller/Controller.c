@@ -10,8 +10,6 @@
 #include "SysConfig.h"
 #include "Diagnostic.h"
 #include "BCCIxParams.h"
-#include "PWM.h"
-#include "Measure.h"
 
 // Types
 typedef enum __DeviceState
@@ -176,17 +174,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			break;
 
 		case ACT_START_SIGNAL:
-			{
-				if(CONTROL_State == DS_Ready)
-				{
-					if(MEASURE_InputParametersCorrect())
-						CONTROL_SetDeviceState(DS_InProcess, DSS_RequestStart);
-					else
-						*pUserError = ERR_BAD_CONFIG;
-				}
-				else
-					*pUserError = ERR_DEVICE_NOT_READY;
-			}
 			break;
 
 		case ACT_STOP_SIGNAL:
@@ -216,76 +203,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 void CONTROL_ProcessSubStates()
 {
-	static Int64U Timeout = 0;
-	if(CONTROL_State == DS_InProcess)
-	{
-		switch(CONTROL_SubState)
-		{
-			case DSS_RequestStart:
-				{
-					CONTROL_ResetResults();
-					LL_OutputSelector(DataTable[REG_OUTPUT_LINE]);
-					MEASURE_SetMeasureRange();
-					PWM_CacheParameters();
-
-					Timeout = CONTROL_TimeCounter + RELAY_SWITCH_DELAY;
-					CONTROL_SetDeviceState(DS_InProcess, DSS_ConnectRelays);
-				}
-				break;
-
-			case DSS_ConnectRelays:
-				{
-					if(CONTROL_TimeCounter > Timeout)
-					{
-						PWM_SignalStart();
-						CONTROL_SetDeviceState(DS_InProcess, DSS_None);
-					}
-				}
-				break;
-
-			case DSS_RequestStop:
-				{
-					PWM_SignalStop();
-				}
-				break;
-
-			case DSS_RequestDisconnect:
-				{
-					Timeout = CONTROL_TimeCounter + RELAY_SWITCH_DELAY;
-					CONTROL_SetDeviceState(DS_InProcess, DSS_DisconnectRelays);
-				}
-				break;
-
-			case DSS_DisconnectRelays:
-				{
-					if(CONTROL_TimeCounter > Timeout)
-					{
-						LL_OutputSelector(AC_None);
-						Timeout = CONTROL_TimeCounter + RELAY_SWITCH_DELAY;
-						CONTROL_SetDeviceState(DS_InProcess, DSS_WaitDisconnection);
-					}
-				}
-				break;
-
-			case DSS_WaitDisconnection:
-				{
-					if(CONTROL_TimeCounter > Timeout)
-						CONTROL_SetDeviceState(DS_Ready, DSS_None);
-				}
-				break;
-
-			default:
-				break;
-		}
-	}
 }
 //------------------------------------------
 
 void CONTROL_ProcessPWMStop(uint16_t Problem)
 {
-	DataTable[REG_OP_RESULT] = (Problem == PROBLEM_NONE) ? OPRESULT_OK : OPRESULT_FAIL;
-	DataTable[REG_PROBLEM] = Problem;
-	CONTROL_SetDeviceState(DS_InProcess, DSS_RequestDisconnect);
 }
 //------------------------------------------
 

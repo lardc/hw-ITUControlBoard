@@ -6,12 +6,10 @@
 #include "Board.h"
 #include "Delay.h"
 #include "LowLevel.h"
-#include "PWM.h"
 #include "SysConfig.h"
 #include "ZwDMA.h"
 #include "Global.h"
 #include "ZwADC.h"
-#include "Measure.h"
 #include "Timer1PWM.h"
 
 // Functions
@@ -107,14 +105,14 @@ void INITCFG_DMA()
 	// ADC1 voltage sampling
 	DMA_Reset(DMA_ADC1_V_CHANNEL);
 	DMA_Interrupt(DMA_ADC1_V_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
-	DMAChannelX_DataConfig(DMA_ADC1_V_CHANNEL, (uint32_t)ADC1DMAVoltageBuffer, (uint32_t)(&ADC1->DR), ADC_DMA_BUFF_SIZE);
+	//DMAChannelX_DataConfig(DMA_ADC1_V_CHANNEL, (uint32_t)ADC1DMAVoltageBuffer, (uint32_t)(&ADC1->DR), ADC_DMA_BUFF_SIZE);
 	DMAChannelX_Config(DMA_ADC1_V_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
 	// ADC2 current sampling
 	DMA_Reset(DMA_ADC2_I_CHANNEL);
 	DMA_Interrupt(DMA_ADC2_I_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
-	DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL, (uint32_t)ADC2DMACurrentBuffer, (uint32_t)(&ADC2->DR), ADC_DMA_BUFF_SIZE);
+	//DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL, (uint32_t)ADC2DMACurrentBuffer, (uint32_t)(&ADC2->DR), ADC_DMA_BUFF_SIZE);
 	DMAChannelX_Config(DMA_ADC2_I_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
