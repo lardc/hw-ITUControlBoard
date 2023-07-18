@@ -11,6 +11,7 @@
 #include "Global.h"
 #include "ZwADC.h"
 #include "Timer1PWM.h"
+#include "Measure.h"
 
 // Functions
 Boolean INITCFG_ConfigSystemClock()
@@ -95,27 +96,36 @@ void INITCFG_DMA()
 	DMA_Clk_Enable(DMA1_ClkEN);
 	DMA_Clk_Enable(DMA2_ClkEN);
 	
-	// ADC1 voltage sampling
-	DMA_Reset(DMA_ADC1_V_CHANNEL);
-	DMA_Interrupt(DMA_ADC1_V_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
-	//DMAChannelX_DataConfig(DMA_ADC1_V_CHANNEL, (uint32_t)ADC1DMAVoltageBuffer, (uint32_t)(&ADC1->DR), ADC_DMA_BUFF_SIZE);
-	DMAChannelX_Config(DMA_ADC1_V_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
+	// ADC current 3-4 sampling
+	DMA_Reset(DMA_ADC1_I_CHANNEL34);
+	DMA_Interrupt(DMA_ADC1_I_CHANNEL34, DMA_TRANSFER_COMPLETE, 0, true);
+	DMAChannelX_DataConfig(DMA_ADC1_I_CHANNEL34, (uint32_t)DMACurrent34, (uint32_t)(&ADC1->DR), ADC_DMA_CURRENT_SAMLES);
+	DMAChannelX_Config(DMA_ADC1_I_CHANNEL34, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
-	// ADC2 current sampling
-	DMA_Reset(DMA_ADC2_I_CHANNEL);
-	DMA_Interrupt(DMA_ADC2_I_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
-	//DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL, (uint32_t)ADC2DMACurrentBuffer, (uint32_t)(&ADC2->DR), ADC_DMA_BUFF_SIZE);
-	DMAChannelX_Config(DMA_ADC2_I_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
+	// ADC current 1-2 sampling
+	DMA_Reset(DMA_ADC2_I_CHANNEL12);
+	DMA_Interrupt(DMA_ADC2_I_CHANNEL12, DMA_TRANSFER_COMPLETE, 0, true);
+	DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL12, (uint32_t)DMACurrent12, (uint32_t)(&ADC2->DR), ADC_DMA_CURRENT_SAMLES);
+	DMAChannelX_Config(DMA_ADC2_I_CHANNEL12, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
-	DMA_ChannelEnable(DMA_ADC1_V_CHANNEL, true);
-	DMA_ChannelEnable(DMA_ADC2_I_CHANNEL, true);
+	// ADC voltage sampling
+	DMA_Reset(DMA_ADC3_V_CHANNEL);
+	DMA_Interrupt(DMA_ADC3_V_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
+	DMAChannelX_DataConfig(DMA_ADC3_V_CHANNEL, (uint32_t)DMAVoltage, (uint32_t)(&ADC3->DR), ADC_DMA_VOLTAGE_SAMLES);
+	DMAChannelX_Config(DMA_ADC3_V_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
+			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
+
+	DMA_ChannelEnable(DMA_ADC1_I_CHANNEL34, true);
+	DMA_ChannelEnable(DMA_ADC2_I_CHANNEL12, true);
+	DMA_ChannelEnable(DMA_ADC3_V_CHANNEL, true);
 }
 //------------------------------------------------
 
-void INITCFG_ADC()
+void INITCFG_HighSpeedADC()
 {
+	// Скоростная оцифровка на АЦП1-2
 	RCC_ADC_Clk_EN(ADC_12_ClkEN);
 	ADC1_2_SetDualMode(true);
 	
@@ -131,16 +141,40 @@ void INITCFG_ADC()
 	ADC_ChannelSeqReset(ADC1);
 	ADC_ChannelSeqReset(ADC2);
 
-	for (uint8_t i = 1; i <= ADC_DMA_BUFF_SIZE; ++i)
+	for (uint8_t i = 1; i <= ADC_DMA_CURRENT_SAMLES; i += 2)
 	{
-		ADC_ChannelSet_Sequence(ADC1, ADC1_VOLTAGE_CHANNEL, i);
-		ADC_ChannelSet_Sequence(ADC2, ADC2_CURRENT_CHANNEL, i);
+		ADC_ChannelSet_Sequence(ADC1, ADC1_CURRENT_CHANNEL4, i);
+		ADC_ChannelSet_Sequence(ADC1, ADC1_CURRENT_CHANNEL3, i + 1);
+
+		ADC_ChannelSet_Sequence(ADC2, ADC2_CURRENT_CHANNEL2, i);
+		ADC_ChannelSet_Sequence(ADC2, ADC2_CURRENT_CHANNEL1, i + 1);
 	}
 
-	ADC_ChannelSeqLen(ADC1, ADC_DMA_BUFF_SIZE);
-	ADC_ChannelSeqLen(ADC2, ADC_DMA_BUFF_SIZE);
+	ADC_ChannelSeqLen(ADC1, ADC_DMA_CURRENT_SAMLES);
+	ADC_ChannelSeqLen(ADC2, ADC_DMA_CURRENT_SAMLES);
 	
 	ADC_DMAEnable(ADC1, true);
 	ADC_DMAEnable(ADC2, true);
+
+	// Настройка АЦП3 для быстройо цифровки и АЦП4 для медленной
+	RCC_ADC_Clk_EN(ADC_34_ClkEN);
+
+	ADC_Calibration(ADC3);
+	ADC_Calibration(ADC4);
+
+	ADC_Enable(ADC3);
+	ADC_Enable(ADC4);
+
+	ADC_SoftTrigConfig(ADC3);
+	ADC_SoftTrigConfig(ADC4);
+
+	ADC_ChannelSeqReset(ADC3);
+	ADC_ChannelSeqReset(ADC4);
+
+	for (uint8_t i = 1; i <= ADC_DMA_VOLTAGE_SAMLES; i++)
+		ADC_ChannelSet_Sequence(ADC3, ADC3_OUT_VOLTAGE_CHANNEL, i);
+
+	ADC_ChannelSeqLen(ADC3, ADC_DMA_VOLTAGE_SAMLES);
+	ADC_DMAEnable(ADC3, true);
 }
 //------------------------------------------------

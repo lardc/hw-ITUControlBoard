@@ -42,11 +42,16 @@
 // ----------------------------------------------
 
 // High-speed sampling
-#define DMA_ADC1_V_CHANNEL				DMA1_Channel1	// Канал DMA для АЦП напряжения
-#define DMA_ADC2_I_CHANNEL				DMA2_Channel1	// Канал DMA для АЦП тока
+#define DMA_ADC1_I_CHANNEL34			DMA1_Channel1	// Канал DMA для АЦП1 каналов тока 3 и 4
+#define DMA_ADC2_I_CHANNEL12			DMA2_Channel1	// Канал DMA для АЦП2 каналов тока 1 и 2
+#define DMA_ADC3_V_CHANNEL				DMA2_Channel5	// Канал DMA для АЦП3 канала напряжения
 //
-#define ADC1_VOLTAGE_CHANNEL			1				// АЦП1 номер канала напряжения
-#define ADC2_CURRENT_CHANNEL			2				// АЦП2 номер канала тока
+#define ADC1_CURRENT_CHANNEL4			1				// АЦП1 номер канала тока 4
+#define ADC1_CURRENT_CHANNEL3			2				// АЦП1 номер канала тока 3
+#define ADC2_CURRENT_CHANNEL2			1				// АЦП2 номер канала тока 2
+#define ADC2_CURRENT_CHANNEL1			3				// АЦП2 номер канала тока 1
+#define ADC3_OUT_VOLTAGE_CHANNEL		1				// АЦП3 номер канала выходного напряжения
+#define ADC4_IN_VOLTAGE_CHANNEL			3				// АЦП4 номер канала входного напряжения
 // ----------------------------------------------
 
 #endif // __SYSCONFIG_H

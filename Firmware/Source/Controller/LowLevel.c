@@ -15,11 +15,19 @@ void LL_ToggleBoardLED()
 
 void LL_DMAReload()
 {
-	DMA_ChannelReload(DMA_ADC1_V_CHANNEL, ADC_DMA_BUFF_SIZE);
-	DMA_ChannelReload(DMA_ADC2_I_CHANNEL, ADC_DMA_BUFF_SIZE);
+	DMA_ChannelReload(DMA_ADC1_I_CHANNEL34, ADC_DMA_CURRENT_SAMLES);
+	DMA_ChannelReload(DMA_ADC2_I_CHANNEL12, ADC_DMA_CURRENT_SAMLES);
+	DMA_ChannelReload(DMA_ADC3_V_CHANNEL, ADC_DMA_VOLTAGE_SAMLES);
 
-	DMA_ChannelEnable(DMA_ADC1_V_CHANNEL, true);
-	DMA_ChannelEnable(DMA_ADC2_I_CHANNEL, true);
+	DMA_ChannelEnable(DMA_ADC1_I_CHANNEL34, true);
+	DMA_ChannelEnable(DMA_ADC2_I_CHANNEL12, true);
+	DMA_ChannelEnable(DMA_ADC3_V_CHANNEL, true);
+}
+//-----------------------------
+
+In16U LL_ReadInputVoltageADC()
+{
+	return ADC_Measure(ADC4, ADC4_IN_VOLTAGE_CHANNEL);
 }
 //-----------------------------
 
@@ -54,6 +62,12 @@ void LL_SelectCurrentChannel(CurrentChannel Channel)
 void LL_EnableExtLed(bool NewState)
 {
 	GPIO_SetState(GPIO_EXT_IND, NewState);
+}
+//-----------------------------
+
+void LL_EnableFan(bool NewState)
+{
+	GPIO_SetState(GPIO_FAN, NewState);
 }
 //-----------------------------
 

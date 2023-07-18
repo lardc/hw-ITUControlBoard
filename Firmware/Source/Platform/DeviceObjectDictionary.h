@@ -7,10 +7,13 @@
 #define ACT_FAULT_CLEAR					3	// Очистка fault
 #define ACT_WARNING_CLEAR				4	// Очистка warning
 
-#define ACT_DBG_SYNC_1_IMPULSE			50 // Сигнал синхронизации
-#define ACT_DBG_SYNC_2_IMPULSE			51 // Сигнал синхронизации
-#define ACT_DBG_SET_STATE_CTRL_RELAY	52 // Изменить состояние реле цепи CTRL
-#define ACT_DBG_SET_STATE_POW_RELAY		53 // Изменить состояние реле цепи POW
+#define ACT_DBG_SWITCH_R0				10	// Включить шунтовой резистор R0
+#define ACT_DBG_SWITCH_R1				11	// Включить шунтовой резистор R1
+#define ACT_DBG_SWITCH_R2				12	// Включить шунтовой резистор R2
+#define ACT_DBG_PULSE_EXT_LED			13	// Мигнуть внешним светодиодом (1 сек)
+#define ACT_DBG_PULSE_FAN				14	// Мигнуть вентилятором (1 сек)
+#define ACT_DBG_READ_SAFETY				15	// Прочитать состояние входа безопасности
+#define ACT_DBG_READ_INPUT_V_ADC		16	// Чтение оцифровки входного напряжения
 
 #define ACT_START_SIGNAL				100	// Запуск формирования сигнала
 #define ACT_STOP_SIGNAL					101	// Остановка формирования сигнала

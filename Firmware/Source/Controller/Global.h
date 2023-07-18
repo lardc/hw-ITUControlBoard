@@ -18,7 +18,9 @@
 // Параметры оцифровки
 #define ADC_REF_VOLTAGE			3300.0f	// Опорное напряжение (в В)
 #define ADC_RESOLUTION			4095	// Разрешение АЦП
-#define ADC_DMA_BUFF_SIZE 		4		// Размер буфера ДМА для АЦП
+#define ADC_DMA_SAMPLES 		4		// Количество сэмплов одного канала АЦП для ДМА
+#define ADC_DMA_VOLTAGE_SAMLES	ADC_DMA_SAMPLES
+#define ADC_DMA_CURRENT_SAMLES	(ADC_DMA_SAMPLES * 2)
 
 // Параметры регулятора
 #define REGULATOR_I_ERR_SAT		15000.0f	// Величина насыщения интегральной ошибки
