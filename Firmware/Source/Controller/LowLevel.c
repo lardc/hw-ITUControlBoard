@@ -25,9 +25,15 @@ void LL_DMAReload()
 }
 //-----------------------------
 
-In16U LL_ReadInputVoltageADC()
+uint16_t LL_ReadInputVoltageADC()
 {
 	return ADC_Measure(ADC4, ADC4_IN_VOLTAGE_CHANNEL);
+}
+//-----------------------------
+
+void LL_SetDACOutput(uint16_t Value)
+{
+	DAC_SetValueCh2(DAC1, Value);
 }
 //-----------------------------
 

@@ -123,7 +123,7 @@ void INITCFG_DMA()
 }
 //------------------------------------------------
 
-void INITCFG_HighSpeedADC()
+void INITCFG_ADC()
 {
 	// Скоростная оцифровка на АЦП1-2
 	RCC_ADC_Clk_EN(ADC_12_ClkEN);
@@ -176,5 +176,18 @@ void INITCFG_HighSpeedADC()
 
 	ADC_ChannelSeqLen(ADC3, ADC_DMA_VOLTAGE_SAMLES);
 	ADC_DMAEnable(ADC3, true);
+}
+//------------------------------------------------
+
+void INITCFG_DAC()
+{
+	DAC_ClkEnable(DAC1);
+	DAC_Reset(DAC1);
+
+	DAC_EnableCh2(DAC1);
+	DAC_BufferCh2(DAC1, false);
+	DAC_TriggerConfigCh2(DAC1, TRIG2_SOFTWARE, TRIG2_ENABLE);
+
+	DAC_SetValueCh2(DAC1, 0);
 }
 //------------------------------------------------

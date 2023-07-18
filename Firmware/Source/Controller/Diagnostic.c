@@ -41,8 +41,12 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			DataTable[REG_DBG] = LL_IsSafetyOK() ? 1 : 0;
 			break;
 
-		case ACT_DBG_READ_ADC4:
+		case ACT_DBG_READ_INPUT_V_ADC:
 			DataTable[REG_DBG] = LL_ReadInputVoltageADC();
+			break;
+
+		case ACT_DBG_SET_DAC_OUTPUT:
+			LL_SetDACOutput(DataTable[REG_DBG]);
 			break;
 
 		default:
