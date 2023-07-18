@@ -26,35 +26,28 @@ void INITCFG_ConfigIO()
 	RCC_GPIO_Clk_EN(PORTB);
 	
 	// Выходы
+	GPIO_InitPushPullOutput(GPIO_R0);
+	GPIO_InitPushPullOutput(GPIO_R1);
+	GPIO_InitPushPullOutput(GPIO_R2);
+	GPIO_InitPushPullOutput(GPIO_EXT_IND);
 	GPIO_InitPushPullOutput(GPIO_LED);
-	GPIO_InitPushPullOutput(GPIO_LED_EXT);
-	GPIO_InitPushPullOutput(GPIO_CTRL_SYNC_1);
-	GPIO_InitPushPullOutput(GPIO_CTRL_SYNC_2);
-	GPIO_InitPushPullOutput(GPIO_I_RANGE_H);
-	GPIO_InitPushPullOutput(GPIO_I_RANGE_M);
-	GPIO_InitPushPullOutput(GPIO_I_RANGE_L);
-	GPIO_InitPushPullOutput(GPIO_U_RANGE);
-	GPIO_InitPushPullOutput(GPIO_POW_RELAY);
-	GPIO_InitPushPullOutput(GPIO_CTRL_RELAY);
-	GPIO_InitPushPullOutput(GPIO_CTRL_PWMSD_1);
-	GPIO_InitPushPullOutput(GPIO_CTRL_PWMSD_2);
-	GPIO_InitPushPullOutput(GPIO_HIGH_VOLTAGE);
+	GPIO_InitPushPullOutput(GPIO_FAN);
 	
 	// Входы аналоговые
-	GPIO_InitAnalog(GPIO_MEAS_U);
-	GPIO_InitAnalog(GPIO_MEAS_I);
+	GPIO_InitAnalog(GPIO_MEASURE_VOUT);
+	GPIO_InitAnalog(GPIO_MEASURE_I1);
+	GPIO_InitAnalog(GPIO_MEASURE_I2);
+	GPIO_InitAnalog(GPIO_MEASURE_I3);
+	GPIO_InitAnalog(GPIO_MEASURE_I4);
+	GPIO_InitAnalog(GPIO_MEASURE_VIN);
 	
 	// Альтернативные функции
 	GPIO_InitAltFunction(GPIO_ALT_CAN_RX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_CAN_TX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_UART_RX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_UART_TX, AltFn_7);
-	GPIO_InitAltFunction(GPIO_CTRL_PWM_1, AltFn_6);
-	GPIO_InitAltFunction(GPIO_CTRL_PWM_2, AltFn_6);
-	
-	LL_EnablePWMOut(true);
-	LL_ConnectPOWRelay(false);
-	LL_ConnectCTRLRelay(false);
+	GPIO_InitAltFunction(GPIO_ALT_PWM1, AltFn_6);
+	GPIO_InitAltFunction(GPIO_ALT_PWM2, AltFn_6);
 }
 //------------------------------------------------
 

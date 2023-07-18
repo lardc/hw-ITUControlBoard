@@ -3,72 +3,13 @@
 
 // Includes
 #include "Board.h"
-#include "Delay.h"
 #include "SysConfig.h"
+#include "Global.h"
 
 // Functions
 void LL_ToggleBoardLED()
 {
 	GPIO_Toggle(GPIO_LED);
-}
-//-----------------------------
-
-void LL_SetSync1State(bool NewState)
-{
-	GPIO_SetState(GPIO_CTRL_SYNC_1, NewState);
-}
-//-----------------------------
-
-void LL_SetSync2State(bool NewState)
-{
-	GPIO_SetState(GPIO_CTRL_SYNC_2, NewState);
-}
-//-----------------------------
-
-void LL_ConnectPOWRelay(bool NewState)
-{
-	GPIO_SetState(GPIO_POW_RELAY, NewState);
-}
-//-----------------------------
-
-void LL_ConnectCTRLRelay(bool NewState)
-{
-	GPIO_SetState(GPIO_CTRL_RELAY, NewState);
-}
-//-----------------------------
-
-void LL_OutputSelector(ACV_OutputLine OutputLine)
-{
-	switch(OutputLine)
-	{
-		case AC_None:
-			{
-				LL_ConnectPOWRelay(false);
-				LL_ConnectCTRLRelay(false);
-			}
-			break;
-
-		case AC_BUS_LV:
-			{
-				LL_ConnectPOWRelay(true);
-				LL_ConnectCTRLRelay(false);
-			}
-			break;
-
-		case AC_CTRL:
-			{
-				LL_ConnectPOWRelay(false);
-				LL_ConnectCTRLRelay(true);
-			}
-			break;
-	}
-}
-//-----------------------------
-
-void LL_EnablePWMOut(bool NewState)
-{
-	GPIO_SetState(GPIO_CTRL_PWMSD_1, NewState);
-	GPIO_SetState(GPIO_CTRL_PWMSD_2, NewState);
 }
 //-----------------------------
 
@@ -82,8 +23,42 @@ void LL_DMAReload()
 }
 //-----------------------------
 
-void LL_SetStateRedLed(bool NewState)
+void LL_SelectCurrentChannel(CurrentChannel Channel)
 {
-	GPIO_SetState(GPIO_LED_EXT, NewState);
+	switch(Channel)
+	{
+		case CC_R0:
+			GPIO_SetState(GPIO_R0, true);
+			GPIO_SetState(GPIO_R1, false);
+			GPIO_SetState(GPIO_R2, false);
+			break;
+
+		case CC_R1:
+			GPIO_SetState(GPIO_R0, false);
+			GPIO_SetState(GPIO_R1, true);
+			GPIO_SetState(GPIO_R2, false);
+			break;
+
+		case CC_R2:
+			GPIO_SetState(GPIO_R0, false);
+			GPIO_SetState(GPIO_R1, false);
+			GPIO_SetState(GPIO_R2, true);
+			break;
+
+		default:
+			break;
+	}
+}
+//-----------------------------
+
+void LL_EnableExtLed(bool NewState)
+{
+	GPIO_SetState(GPIO_EXT_IND, NewState);
+}
+//-----------------------------
+
+bool LL_IsSafetyOK()
+{
+	return GPIO_GetState(GPIO_SAFETY);
 }
 //-----------------------------

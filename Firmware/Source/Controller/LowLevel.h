@@ -3,17 +3,21 @@
 
 // Include
 #include "stdinc.h"
-#include "Global.h"
+
+// Deinitions
+typedef enum __CurrentChannel
+{
+	CC_R0,
+	CC_R1,
+	CC_R2
+} CurrentChannel;
 
 // Functions
 void LL_ToggleBoardLED();
-void LL_SetSync1State(bool NewState);
-void LL_SetSync2State(bool NewState);
-void LL_ConnectPOWRelay(bool NewState);
-void LL_ConnectCTRLRelay(bool NewState);
-void LL_EnablePWMOut(bool NewState);
 void LL_DMAReload();
-void LL_OutputSelector(ACV_OutputLine OutputLine);
-void LL_SetStateRedLed(bool NewState);
+void LL_SelectCurrentChannel(CurrentChannel Channel);
+void LL_EnableExtLed(bool NewState);
+void LL_EnableFan(bool NewState);
+bool LL_IsSafetyOK();
 
 #endif //__LOWLEVEL_H

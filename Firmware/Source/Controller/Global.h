@@ -26,11 +26,4 @@
 // Прочие
 #define RELAY_SWITCH_DELAY		100		// Задержка переключения реле (в мс)
 
-typedef enum __ACV_OutputLine
-{
-	AC_None = 0,
-	AC_BUS_LV = 1,
-	AC_CTRL = 2
-} ACV_OutputLine;
-
 #endif //  __GLOBAL_H

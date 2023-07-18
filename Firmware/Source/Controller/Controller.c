@@ -119,11 +119,6 @@ void CONTROL_ResetResults()
 
 void CONTROL_ResetToDefaultState()
 {
-	LL_SetSync1State(false);
-	LL_SetSync2State(false);
-	LL_ConnectPOWRelay(false);
-	LL_ConnectCTRLRelay(false);
-
 	CONTROL_ResetResults();
 	CONTROL_SetDeviceState(DS_None, DSS_None);
 }
@@ -186,7 +181,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 					// Прерывание запуска
 					else if(CONTROL_SubState == DSS_ConnectRelays)
 					{
-						LL_OutputSelector(AC_None);
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
 				}

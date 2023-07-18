@@ -107,7 +107,5 @@ void T1PWM_Stop()
 
 	// Разрешение прерывания
 	TIM1->DIER |= TIM_DIER_UIE;
-
-	LL_SetStateRedLed(false);
 }
 //------------------------------------------------
