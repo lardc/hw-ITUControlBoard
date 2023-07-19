@@ -9,62 +9,62 @@
 #define NO		0
 #define YES		1
 
-#define REGULATOR_K_MAX			10000
+#define TICK_LIMIT_MAX			4095
 
-// в Ом
-#define SHUNT_RES_MIN			1
-#define SHUNT_RES_MAX			INT16U_MAX
-#define SHUNT_RES_DEF			1000
+#define K_MIN					1e-4
+#define K_MAX					1000
+#define K_DEF					1
 
-#define TRANSFORMER_RATIO_MIN	5
-#define TRANSFORMER_RATIO_MAX	60
-#define TRANSFORMER_RATIO_DEF	10
+#define P2_MAX					1e-3
+#define P2_MIN					(-P2_MAX)
 
-// в В (RMS)
-#define VOLTAGE_OUTPUT_MIN		5
-#define VOLTAGE_OUTPUT_MAX		750
-#define VOLTAGE_OUTPUT_DEF		20
+#define P1_MIN					0.1
+#define P1_MAX					2
 
-// в В/сек
-#define VOLTAGE_RISE_RATE_MIN	10
-#define VOLTAGE_RISE_RATE_MAX	200
-#define VOLTAGE_RISE_RATE_DEF	10
+#define P0_MAX					1e3
+#define P0_MIN					(-P0_MAX)
 
-// в мкА
-#define CURRENT_OUTPUT_UA_MIN	1
-#define CURRENT_OUTPUT_UA_MAX	8000
-#define CURRENT_OUTPUT_UA_DEF	10
+#define RES_MIN					1
+#define RES_MAX					10000
+#define RES_DEF					100
 
-// в мА
-#define CURRENT_OUTPUT_MA_MIN	1
-#define CURRENT_OUTPUT_MA_MAX	200
-#define CURRENT_OUTPUT_MA_DEF	100
+// in Vrms
+#define START_VOLTAGE_MIN		100
+#define START_VOLTAGE_MAX		1000
+#define START_VOLTAGE_DEF		500
 
-// в %
-#define FE_LEVEL_MIN			1
-#define FE_LEVEL_MAX			50
-#define FE_LEVEL_DEF			10
+// in kV/sec
+#define VOLTAGE_RATE_MIN		0.1
+#define VOLTAGE_RATE_MAX		3
+#define VOLTAGE_RATE_DEF		1
 
-#define FE_COUNTER_MIN			1
-#define FE_COUNTER_MAX			50
+#define K_REG_MAX				100
+
+// in Vrms
+#define FE_ABS_MAX				1000
+#define FE_ABS_DEF				100
+
+// in %
+#define FE_REL_MAX				100
+#define FE_REL_DEF				10
+
+#define FE_COUNTER_MAX			10
 #define FE_COUNTER_DEF			3
 
-// в В
-#define FE_ABS_LEVEL_MIN		1
-#define FE_ABS_LEVEL_MAX		50
-#define FE_ABS_LEVEL_DEF		5
+// in X:1
+#define TRANS_COEFF_MIN			50
+#define TRANS_COEFF_MAX			150
+#define TRANS_COEFF_DEF			100
 
-// в %
-#define VOLTAGE_READY_LVL_MIN	1
-#define VOLTAGE_READY_LVL_MAX	10
-#define VOLTAGE_READY_LVL_DEF	3
+// in Vdc
+#define PRIM_VOLTAGE_MIN		1
+#define PRIM_VOLTAGE_MAX		200
+#define PRIM_VOLTAGE_DEF		150
 
-// в %
-#define REG_CURR_RANGE_SAFETY_LIMIT 15
-
-// в значении регистра CCR
-#define PWM_DUTY_OFFSET_MAX	100
-#define PWM_DUTY_OFFSET_DEF	0
+// in Vrms
+#define TARGET_VOLTAGE_MIN		1000
+#define TARGET_VOLTAGE_MAX		10500
+#define TARGET_VOLTAGE_DEF		1000
 
 // Types
 typedef struct __TableItemConstraint

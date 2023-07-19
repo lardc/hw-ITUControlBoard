@@ -168,10 +168,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
-		case ACT_START_SIGNAL:
+		case ACT_START:
 			break;
 
-		case ACT_STOP_SIGNAL:
+		case ACT_STOP:
 			{
 				if(CONTROL_State == DS_InProcess)
 				{
