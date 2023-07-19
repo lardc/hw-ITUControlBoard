@@ -17,11 +17,16 @@
 #define CURRENT_OUTPUT_MAX		110000
 
 // Параметры оцифровки
-#define ADC_REF_VOLTAGE			3300.0f	// Опорное напряжение (в В)
+#define ADC_REF_VOLTAGE			3000.0f	// Опорное напряжение (в В)
 #define ADC_RESOLUTION			4095	// Разрешение АЦП
 #define ADC_DMA_SAMPLES 		4		// Количество сэмплов одного канала АЦП для ДМА
-#define ADC_DMA_VOLTAGE_SAMLES	ADC_DMA_SAMPLES
-#define ADC_DMA_CURRENT_SAMLES	(ADC_DMA_SAMPLES * 2)
+#define ADC_DMA_VOLTAGE_SAMPLES	ADC_DMA_SAMPLES
+#define ADC_DMA_CURRENT_SAMPLES	(ADC_DMA_SAMPLES * 2)
+
+// Заготовки для быстрого деления
+#define VOLTAGE_MPY_DIV			(1.0f / ADC_DMA_VOLTAGE_SAMPLES)
+#define CURRENT_MPY_DIV			(2.0f / ADC_DMA_CURRENT_SAMPLES)
+#define RESOLUTION_MPY_DIV		(1.0f / ADC_RESOLUTION)
 
 // Параметры регулятора
 #define REGULATOR_I_ERR_SAT		15000.0f	// Величина насыщения интегральной ошибки

@@ -99,21 +99,21 @@ void INITCFG_DMA()
 	// ADC current 3-4 sampling
 	DMA_Reset(DMA_ADC1_I_CHANNEL34);
 	DMA_Interrupt(DMA_ADC1_I_CHANNEL34, DMA_TRANSFER_COMPLETE, 0, true);
-	DMAChannelX_DataConfig(DMA_ADC1_I_CHANNEL34, (uint32_t)DMACurrent34, (uint32_t)(&ADC1->DR), ADC_DMA_CURRENT_SAMLES);
+	DMAChannelX_DataConfig(DMA_ADC1_I_CHANNEL34, (uint32_t)DMACurrent34, (uint32_t)(&ADC1->DR), ADC_DMA_CURRENT_SAMPLES);
 	DMAChannelX_Config(DMA_ADC1_I_CHANNEL34, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
 	// ADC current 1-2 sampling
 	DMA_Reset(DMA_ADC2_I_CHANNEL12);
 	DMA_Interrupt(DMA_ADC2_I_CHANNEL12, DMA_TRANSFER_COMPLETE, 0, true);
-	DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL12, (uint32_t)DMACurrent12, (uint32_t)(&ADC2->DR), ADC_DMA_CURRENT_SAMLES);
+	DMAChannelX_DataConfig(DMA_ADC2_I_CHANNEL12, (uint32_t)DMACurrent12, (uint32_t)(&ADC2->DR), ADC_DMA_CURRENT_SAMPLES);
 	DMAChannelX_Config(DMA_ADC2_I_CHANNEL12, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 	
 	// ADC voltage sampling
 	DMA_Reset(DMA_ADC3_V_CHANNEL);
 	DMA_Interrupt(DMA_ADC3_V_CHANNEL, DMA_TRANSFER_COMPLETE, 0, true);
-	DMAChannelX_DataConfig(DMA_ADC3_V_CHANNEL, (uint32_t)DMAVoltage, (uint32_t)(&ADC3->DR), ADC_DMA_VOLTAGE_SAMLES);
+	DMAChannelX_DataConfig(DMA_ADC3_V_CHANNEL, (uint32_t)DMAVoltage, (uint32_t)(&ADC3->DR), ADC_DMA_VOLTAGE_SAMPLES);
 	DMAChannelX_Config(DMA_ADC3_V_CHANNEL, DMA_MEM2MEM_DIS, DMA_LvlPriority_LOW, DMA_MSIZE_16BIT, DMA_PSIZE_16BIT,
 			DMA_MINC_EN, DMA_PINC_DIS, DMA_CIRCMODE_DIS, DMA_READ_FROM_PERIPH);
 
@@ -141,7 +141,7 @@ void INITCFG_ADC()
 	ADC_ChannelSeqReset(ADC1);
 	ADC_ChannelSeqReset(ADC2);
 
-	for (uint8_t i = 1; i <= ADC_DMA_CURRENT_SAMLES; i += 2)
+	for (uint8_t i = 1; i <= ADC_DMA_CURRENT_SAMPLES; i += 2)
 	{
 		ADC_ChannelSet_Sequence(ADC1, ADC1_CURRENT_CHANNEL4, i);
 		ADC_ChannelSet_Sequence(ADC1, ADC1_CURRENT_CHANNEL3, i + 1);
@@ -150,8 +150,8 @@ void INITCFG_ADC()
 		ADC_ChannelSet_Sequence(ADC2, ADC2_CURRENT_CHANNEL1, i + 1);
 	}
 
-	ADC_ChannelSeqLen(ADC1, ADC_DMA_CURRENT_SAMLES);
-	ADC_ChannelSeqLen(ADC2, ADC_DMA_CURRENT_SAMLES);
+	ADC_ChannelSeqLen(ADC1, ADC_DMA_CURRENT_SAMPLES);
+	ADC_ChannelSeqLen(ADC2, ADC_DMA_CURRENT_SAMPLES);
 	
 	ADC_DMAEnable(ADC1, true);
 	ADC_DMAEnable(ADC2, true);
@@ -171,10 +171,10 @@ void INITCFG_ADC()
 	ADC_ChannelSeqReset(ADC3);
 	ADC_ChannelSeqReset(ADC4);
 
-	for (uint8_t i = 1; i <= ADC_DMA_VOLTAGE_SAMLES; i++)
+	for (uint8_t i = 1; i <= ADC_DMA_VOLTAGE_SAMPLES; i++)
 		ADC_ChannelSet_Sequence(ADC3, ADC3_OUT_VOLTAGE_CHANNEL, i);
 
-	ADC_ChannelSeqLen(ADC3, ADC_DMA_VOLTAGE_SAMLES);
+	ADC_ChannelSeqLen(ADC3, ADC_DMA_VOLTAGE_SAMPLES);
 	ADC_DMAEnable(ADC3, true);
 }
 //------------------------------------------------
