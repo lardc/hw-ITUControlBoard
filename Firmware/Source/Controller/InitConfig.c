@@ -11,7 +11,7 @@
 #include "Global.h"
 #include "ZwADC.h"
 #include "Timer1PWM.h"
-#include "Measure.h"
+#include "MeasureUtils.h"
 
 // Functions
 Boolean INITCFG_ConfigSystemClock()

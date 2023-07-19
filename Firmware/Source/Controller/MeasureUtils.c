@@ -1,5 +1,5 @@
 ﻿// Header
-#include "Measure.h"
+#include "MeasureUtils.h"
 
 // Includes
 #include "Board.h"
@@ -28,13 +28,13 @@ static Coefficients VoltageCoeff, CurrentCoeff[CURRENT_CHANNELS];
 static float ShuntResistanceDiv;
 
 // Forward functions
-void ME_LoadParams(Coefficients *coeff, uint16_t RegStartIndex);
-float ME_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent);
+void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex);
+float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent);
 
 // Functions
-void ME_CacheVariables(CurrentChannel SelectedChannel)
+void MU_CacheVariables(CurrentChannel SelectedChannel)
 {
-	ME_LoadParams(&VoltageCoeff, REG_COEFF_VOLTAGE_K);
+	MU_LoadParams(&VoltageCoeff, REG_COEFF_VOLTAGE_K);
 	VoltageCoeff.RawShift = DataTable[REG_RAW_ZERO_SVOLTAGE];
 
 	uint16_t BaseCurrentReg = 0;
@@ -62,13 +62,13 @@ void ME_CacheVariables(CurrentChannel SelectedChannel)
 	int i;
 	for(i = 0; i < CURRENT_CHANNELS; i++)
 	{
-		ME_LoadParams(&CurrentCoeff[i], BaseCurrentReg + DEV_OBJ_DICT_CHAN_STEP * i);
+		MU_LoadParams(&CurrentCoeff[i], BaseCurrentReg + DEV_OBJ_DICT_CHAN_STEP * i);
 		CurrentCoeff[i].RawShift = DataTable[REG_RAW_ZERO_SCURRENT1 + i];
 	}
 }
 //------------------------------------------
 
-void ME_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
+void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
 {
 	coeff->K = DataTable[RegStartIndex];
 	coeff->P2 = DataTable[RegStartIndex + 1];
@@ -77,7 +77,7 @@ void ME_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
 }
 //------------------------------------------
 
-float ME_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
+float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 {
 	// Смещение
 	Value -= coeff->RawShift;
@@ -97,7 +97,7 @@ float ME_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 }
 //------------------------------------------
 
-SampleResult ME_GetSampleResult()
+SampleResult MU_GetSampleResult()
 {
 	int i;
 	SampleResult result;
@@ -108,7 +108,7 @@ SampleResult ME_GetSampleResult()
 	for(i = 0; i < ADC_DMA_VOLTAGE_SAMPLES; i++)
 		Voltage += DMAVoltage[i];
 	Voltage *= VOLTAGE_MPY_DIV;
-	result.Voltage = ME_SingleConversionX(&VoltageCoeff, Voltage, false);
+	result.Voltage = MU_SingleConversionX(&VoltageCoeff, Voltage, false);
 
 	// Обработка данных тока
 	for(i = 0; i < ADC_DMA_CURRENT_SAMPLES; i += 2)
@@ -119,7 +119,7 @@ SampleResult ME_GetSampleResult()
 		Current[3] += DMACurrent34[i + 1];
 	}
 	for(i = 0; i < CURRENT_CHANNELS; i++)
-		result.Current[i] = ME_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
+		result.Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
 
 	return result;
 }

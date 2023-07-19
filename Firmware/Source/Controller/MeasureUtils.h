@@ -1,5 +1,5 @@
-﻿#ifndef __MEASURE_H
-#define __MEASURE_H
+﻿#ifndef __MEASURE_UTILS_H
+#define __MEASURE_UTILS_H
 
 // Include
 #include "stdinc.h"
@@ -20,7 +20,7 @@ extern uint16_t DMACurrent12[];
 extern uint16_t DMACurrent34[];
 
 // Functions
-void ME_CacheVariables(CurrentChannel SelectedChannel);
-SampleResult ME_GetSampleResult();
+void MU_CacheVariables(CurrentChannel SelectedChannel);
+SampleResult MU_GetSampleResult();
 
-#endif // __MEASURE_H
+#endif // __MEASURE_UTILS_H

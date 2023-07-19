@@ -121,18 +121,20 @@
 
 #define REG_IGNORE_HW_SAFETY			71	// Не обрабатывать аппаратный сигнал контура безопасности
 
+#define REG_I_RANGE_LOW					72	// Предел нижнего диапазона тока, мА
+#define REG_I_RANGE_MID					73	// Предел среднего диапазона тока, мА
+#define REG_I_RANGE_HIGH				74	// Предел верхнего диапазона тока, мА
+
 // Несохраняемы регистры чтения-записи
-#define REG_VOLTAGE_SETPOINT			128 // Действующее значение напряжения выходного сигнала - младшее слово, мВ
-#define REG_VOLTAGE_SETPOINT_32			129 // Действующее значение напряжения выходного сигнала - старшее слово, мВ
-#define REG_CURRENT_SETPOINT			130 // Действующее значение тока выходного сигнала - младшее слово, мкА
-#define REG_CURRENT_SETPOINT_32			131 // Действующее значение тока выходного сигнала - старшее слово, мкА
-#define REG_OUTPUT_LINE					132 // Канал подачи выходного сигнала
+#define REG_TEST_VOLTAGE				128	// Действующее напряжение уставки (в В)
+#define REG_LIMIT_CURRENT_mA			129	// Предельный ток (часть мА)
+#define REG_LIMIT_CURRENT_uA			130	// Предельный ток (часть мкА)
+#define REG_STOP_BY_ACTIVE_CURRENT		131	// Режим остановки по активной составляющей тока
+#define REG_TEST_TIME					132	// Длительность формирования полки (в сек)
+#define REG_SCOPE_RATE					133	// Делитель логгирования данных
 
-#define REG_SCOPE_RATE					150	// Шаг логгирования в эндпоинты
-
-#define REG_CURR_RANGE_1_SAFETY_LIMIT	181	// Запас по току диапазона 1 до срабатывания ограничения (%)
-#define REG_CURR_RANGE_2_SAFETY_LIMIT	182	// Запас по току диапазона 2 до срабатывания ограничения (%)
-#define REG_CURR_RANGE_3_SAFETY_LIMIT	183	// Запас по току диапазона 3 до срабатывания ограничения (%)
+#define REG_DBG_SRAM					170	// Write saw-shape debug sequence to SRAM
+#define REG_DBG_MUTE_PWM				171	// Mute PWM output
 
 #define REG_DBG							190	// Отладочный регистр
 
