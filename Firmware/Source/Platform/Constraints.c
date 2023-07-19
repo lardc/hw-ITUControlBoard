@@ -7,7 +7,7 @@
 
 // Constants
 //
-const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] = {
+const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, REGULATOR_K_MAX, 0},													// 0
 		{0, REGULATOR_K_MAX, 0},													// 1
 		{SHUNT_RES_MIN, SHUNT_RES_MAX, SHUNT_RES_DEF},								// 2
@@ -135,10 +135,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] = {
 		{0, 0, 0},																	// 124
 		{0, 0, 0},																	// 125
 		{0, 0, 0},																	// 126
-		{0, 0, 0}																	// 127
-};
-
-const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START] = {
+		{0, 0, 0},																	// 127
 		{0, INT16U_MAX, 0},															// 128
 		{0, INT16U_MAX, 0},															// 129
 		{0, INT16U_MAX, 0},															// 130

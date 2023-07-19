@@ -16,8 +16,8 @@
 #define ACT_DBG_READ_INPUT_V_ADC		16	// Чтение оцифровки входного напряжения
 #define ACT_DBG_SET_DAC_OUTPUT			17	// Установить значение на выходе ЦАП
 
-#define ACT_START_SIGNAL				100	// Запуск формирования сигнала
-#define ACT_STOP_SIGNAL					101	// Остановка формирования сигнала
+#define ACT_START_SIGNAL				100	// Запуск формирования
+#define ACT_STOP_SIGNAL					101	// Остановка формирования
 
 #define ACT_SAVE_TO_ROM					200	// Сохранение пользовательских данных во FLASH процессора
 #define ACT_RESTORE_FROM_ROM			201	// Восстановление данных из FLASH

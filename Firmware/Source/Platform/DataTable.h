@@ -11,6 +11,9 @@
 #include "DeviceObjectDictionary.h"
 #include "DeviceProfile.h"
 
+// Definitions
+#define USE_FLOAT_DT
+
 // Constants
 //
 #define DATA_TABLE_SIZE			300
@@ -51,7 +54,7 @@ typedef struct __EPROMServiceConfig
 
 // Variables
 //
-extern volatile Int16U DataTable[DATA_TABLE_SIZE];
+extern volatile float DataTable[];
 
 // Functions
 //
@@ -65,9 +68,6 @@ void DT_SaveNVPartToEPROM();
 void DT_ResetNVPart(FUNC_SetDefaultValues SetFunc);
 // Reset volatile read-write part of data table
 void DT_ResetWRPart(FUNC_SetDefaultValues SetFunc);
-// 32-bit operations
-void DT_Write32(Int16U RegL, Int16U RegM, Int32U Value);
-Int32U DT_Read32(Int16U RegL, Int16U RegM);
 // Save firmware information to data table
 void DT_SaveFirmwareInfo(Int16U SlaveNID, Int16U MasterNID);
 
