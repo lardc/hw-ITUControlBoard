@@ -1,4 +1,4 @@
-// Header
+ï»¿// Header
 #include "Timer1PWM.h"
 
 // Includes
@@ -17,53 +17,53 @@ volatile uint32_t T1PWM_Offset = 0;
 // Functions
 void T1PWM_Init(uint32_t SystemClock, uint32_t Period)
 {
-	// Ðàñ÷¸ò ðàçìåðíîñòè ØÈÌ
+	// Ð Ð°ÑÑ‡Ñ‘Ñ‚ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð½Ð¾ÑÑ‚Ð¸ Ð¨Ð˜Ðœ
 	uint32_t Prescaler = (uint32_t)((float)SystemClock / 1000000 * Period / 65536);
 	PWMBase = (uint32_t)((SystemClock / ((Prescaler + 1) * 1000000)) * Period);
 
-	// Ñòàíäàðòíàÿ èíèöèàëèçàöèÿ
+	// Ð¡Ñ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð°Ñ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ
 	TIM_Clock_En(TIM_1);
 
 	TIM1->PSC = Prescaler;
 	TIM1->ARR = PWMBase;
 
-	// Êàíàë 1 - ïîëîæèòåëüíûé
-	// Ðåæèì ØÈÌ - PWM mode 1, c ôóíêöèåé Preload
+	// ÐšÐ°Ð½Ð°Ð» 1 - Ð¿Ð¾Ð»Ð¾Ð¶Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹
+	// Ð ÐµÐ¶Ð¸Ð¼ Ð¨Ð˜Ðœ - PWM mode 1, c Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ Preload
 	TIM1->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE;
 	TIM1->CCR1 = 0;
 
-	// Êàíàë 2 - îòðèöàòåëüíûé
-	// Ðåæèì ØÈÌ - PWM mode 1, c ôóíêöèåé Preload
+	// ÐšÐ°Ð½Ð°Ð» 2 - Ð¾Ñ‚Ñ€Ð¸Ñ†Ð°Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹
+	// Ð ÐµÐ¶Ð¸Ð¼ Ð¨Ð˜Ðœ - PWM mode 1, c Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ Preload
 	TIM1->CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE;
 	TIM1->CCR2 = 0;
 
-	// Ðàçðåøåíèå âûõîä CH1 è CH2N
+	// Ð Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ð²Ñ‹Ñ…Ð¾Ð´ CH1 Ð¸ CH2N
 	TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2NE;
-	// Ðàçðåøåíèå ðàáîòû òàéìåðà íà âûõîä
+	// Ð Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð° Ð½Ð° Ð²Ñ‹Ñ…Ð¾Ð´
 	TIM1->BDTR |= TIM_BDTR_MOE;
 
-	// Ñáðîñ âûõîäà
+	// Ð¡Ð±Ñ€Ð¾Ñ Ð²Ñ‹Ñ…Ð¾Ð´Ð°
 	T1PWM_SetDutyCycle(0);
 
-	// Èíèöèàëèçàöèÿ îáíîâëåíèÿ ðåãèñòðîâ
+	// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¾Ð²
 	TIM1->SR &= ~TIM_SR_UIF;
 	TIM1->EGR |= TIM_EGR_UG;
 	while(!(TIM1->SR & TIM_SR_UIF));
 	TIM1->SR &= ~TIM_SR_UIF;
 
-	// Ðàçðåøåíèå ïðåðûâàíèÿ
+	// Ð Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ñ
 	TIM_Interupt(TIM1, 0, true);
 }
 //------------------------------------------------
 
 void T1PWM_SetDutyCycle(float Value)
 {
-	// Ïðîâåðêà çíà÷åíèÿ íà íàñûùåíèå
+	// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð½Ð° Ð½Ð°ÑÑ‹Ñ‰ÐµÐ½Ð¸Ðµ
 	float MaxOutput = T1PWM_MAX_OUTPUT * PWMBase;
 	float absValue = fabsf(Value);
 	uint32_t IntValue = (uint32_t)(absValue > MaxOutput ? MaxOutput : absValue);
 
-	// Âûáîð ïîëÿðíîñòè ôîðìèðîâàòåëÿ
+	// Ð’Ñ‹Ð±Ð¾Ñ€ Ð¿Ð¾Ð»ÑÑ€Ð½Ð¾ÑÑ‚Ð¸ Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ
 	if(Value > 0)
 	{
 		TIM1->CCR1 = IntValue + T1PWM_Offset;
@@ -96,16 +96,16 @@ void T1PWM_Stop()
 	T1PWM_SetDutyCycle(0);
 	TIM_Stop(TIM1);
 
-	// Çàïðåò ïðåðûâàíèÿ è î÷èñòêà ôëàãà
+	// Ð—Ð°Ð¿Ñ€ÐµÑ‚ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ñ Ð¸ Ð¾Ñ‡Ð¸ÑÑ‚ÐºÐ° Ñ„Ð»Ð°Ð³Ð°
 	TIM1->DIER &= ~TIM_DIER_UIE;
 	TIM1->SR &= ~TIM_SR_UIF;
 
-	// Ôîðñèðîâàíèå îáíîâëåíèÿ ðåãèñòðîâ òàéìåðà
+	// Ð¤Ð¾Ñ€ÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¾Ð² Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð°
 	TIM1->EGR |= TIM_EGR_UG;
 	while(!(TIM1->SR & TIM_SR_UIF));
 	TIM1->SR &= ~TIM_SR_UIF;
 
-	// Ðàçðåøåíèå ïðåðûâàíèÿ
+	// Ð Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ñ
 	TIM1->DIER |= TIM_DIER_UIE;
 }
 //------------------------------------------------
