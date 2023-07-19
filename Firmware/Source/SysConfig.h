@@ -11,12 +11,12 @@
 // System clock
 #define SYSCLK							70000000	// Тактовая частота системной шины процессора
 #define QUARTZ_FREQUENCY				20000000	// Частота кварца
-// ----------------------------------------------
+// ---------------------------------------------
 
 // USART
 #define USART_BAUDRATE					115200		// Скорость USART
 #define USART_FIFOlen					32			// Длина FIFO USART
-// ----------------------------------------------
+// ---------------------------------------------
 
 // PWM
 #define PWM_FREQUENCY					20000		// в Гц
@@ -25,21 +25,21 @@
 #define PWM_SINE_COUNTER_MAX			(PWM_FREQUENCY / PWM_SINE_FREQ)
 #define PWM_PRIMARY_VOLTAGE_LOW			12			// в В
 #define PWM_PRIMARY_VOLTAGE_HIGH		50			// в В
-// ----------------------------------------------
+// ---------------------------------------------
 
 // MEAS RANGE
 #define MEASURE_RANGE_LOW				1
 #define MEASURE_RANGE_MIDDLE			2
 #define MEASURE_RANGE_HIGH				3
-// ----------------------------------------------
+// ---------------------------------------------
 
 // Timers
 #define TIMER7_uS						1000		// в мкс
-// ----------------------------------------------
+// ---------------------------------------------
 
 // CAN
 #define CAN_BAUDRATE					1000000		// Битрейт CAN
-// ----------------------------------------------
+// ---------------------------------------------
 
 // High-speed sampling
 #define DMA_ADC1_I_CHANNEL34			DMA1_Channel1	// Канал DMA для АЦП1 каналов тока 3 и 4
@@ -52,6 +52,6 @@
 #define ADC2_CURRENT_CHANNEL1			3				// АЦП2 номер канала тока 1
 #define ADC3_OUT_VOLTAGE_CHANNEL		1				// АЦП3 номер канала выходного напряжения
 #define ADC4_IN_VOLTAGE_CHANNEL			3				// АЦП4 номер канала входного напряжения
-// ----------------------------------------------
+// ---------------------------------------------
 
 #endif // __SYSCONFIG_H
