@@ -55,22 +55,21 @@ void ConfigGPIO()
 	RCC_GPIO_Clk_EN(PORTA);
 	RCC_GPIO_Clk_EN(PORTB);
 	
-	//Выходы
-	GPIO_Config(LED_BLINK_PORT, LED_BLINK_PIN, Output, PushPull, HighSpeed, NoPull);
+	// Выходы
+	GPIO_InitPushPullOutput(GPIO_R0);
+	GPIO_InitPushPullOutput(GPIO_R1);
+	GPIO_InitPushPullOutput(GPIO_R2);
+	GPIO_InitPushPullOutput(GPIO_EXT_IND);
+	GPIO_InitPushPullOutput(GPIO_LED);
+	GPIO_InitPushPullOutput(GPIO_FAN);
+	GPIO_InitPushPullOutput(GPIO_ALT_PWM1);
+	GPIO_InitPushPullOutput(GPIO_ALT_PWM2);
 	
-	//Альтернативные функции портов
-	GPIO_Config(GPIOA, Pin_9, AltFn, PushPull, HighSpeed, NoPull); //PA9(USART1 TX)
-	GPIO_AltFn(GPIOA, Pin_9, AltFn_7);
-	
-	GPIO_Config(GPIOA, Pin_10, AltFn, PushPull, HighSpeed, NoPull); //PA10(USART1 RX)
-	GPIO_AltFn(GPIOA, Pin_10, AltFn_7);
-	
-	GPIO_Config(GPIOA, Pin_11, AltFn, PushPull, HighSpeed, NoPull); //PA11(CAN RX)
-	GPIO_AltFn(GPIOA, Pin_11, AltFn_9);
-	
-	GPIO_Config(GPIOA, Pin_12, AltFn, PushPull, HighSpeed, NoPull); //PA12(CAN TX)
-	GPIO_AltFn(GPIOA, Pin_12, AltFn_9);
-	
+	// Альтернативные функции портов
+	GPIO_InitAltFunction(GPIO_ALT_CAN_RX, AltFn_9);
+	GPIO_InitAltFunction(GPIO_ALT_CAN_TX, AltFn_9);
+	GPIO_InitAltFunction(GPIO_ALT_UART_RX, AltFn_7);
+	GPIO_InitAltFunction(GPIO_ALT_UART_TX, AltFn_7);
 }
 //--------------------------------------------
 

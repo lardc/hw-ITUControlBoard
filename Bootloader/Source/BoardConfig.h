@@ -17,8 +17,23 @@
 
 // Definitions
 //
-// Blinking LED settings
-#define LED_BLINK_PORT		GPIOB
-#define LED_BLINK_PIN		Pin_10
+// Выходы
+GPIO_PortPinSettingMacro GPIO_R0 =				{GPIOB, Pin_9};
+GPIO_PortPinSettingMacro GPIO_R1 = 				{GPIOB, Pin_8};
+GPIO_PortPinSettingMacro GPIO_R2 = 				{GPIOB, Pin_7};
+GPIO_PortPinSettingMacro GPIO_EXT_IND = 		{GPIOA, Pin_15};
+GPIO_PortPinSettingMacro GPIO_LED = 			{GPIOB, Pin_4};
+GPIO_PortPinSettingMacro GPIO_FAN = 			{GPIOB, Pin_3};
+GPIO_PortPinSettingMacro GPIO_ALT_PWM1 =		{GPIOA, Pin_8};
+GPIO_PortPinSettingMacro GPIO_ALT_PWM2 =		{GPIOB, Pin_14};
+
+// Альтернативные функции
+GPIO_PortPinSettingMacro GPIO_ALT_CAN_RX =		{GPIOA, Pin_11};
+GPIO_PortPinSettingMacro GPIO_ALT_CAN_TX =		{GPIOA, Pin_12};
+GPIO_PortPinSettingMacro GPIO_ALT_UART_RX =		{GPIOA, Pin_10};
+GPIO_PortPinSettingMacro GPIO_ALT_UART_TX =		{GPIOA, Pin_9};
+
+#define LED_BLINK_PORT		GPIO_LED.Port
+#define LED_BLINK_PIN		GPIO_LED.Pin
 
 #endif // __BOARD_CONFIG_H
