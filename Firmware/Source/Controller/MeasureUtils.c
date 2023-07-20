@@ -110,10 +110,9 @@ float MU_SingleFineTuningX(Coefficients *coeff, float Value)
 }
 //------------------------------------------
 
-SampleResult MU_GetSampleResult()
+void MU_GetSampleData(pSampleData Result)
 {
 	int i;
-	SampleResult result;
 	float Voltage = 0;
 	float Current[CURRENT_CHANNELS] = {0};
 
@@ -121,7 +120,7 @@ SampleResult MU_GetSampleResult()
 	for(i = 0; i < ADC_DMA_VOLTAGE_SAMPLES; i++)
 		Voltage += DMAVoltage[i];
 	Voltage *= VOLTAGE_MPY_DIV;
-	result.Voltage = MU_SingleConversionX(&VoltageCoeff, Voltage, false);
+	Result->Voltage = MU_SingleConversionX(&VoltageCoeff, Voltage, false);
 
 	// Обработка данных тока
 	for(i = 0; i < ADC_DMA_CURRENT_SAMPLES; i += 2)
@@ -132,16 +131,13 @@ SampleResult MU_GetSampleResult()
 		Current[3] += DMACurrent34[i + 1];
 	}
 	for(i = 0; i < CURRENT_CHANNELS; i++)
-		result.Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
-
-	return result;
+		Result->Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
 }
 //------------------------------------------
 
-void MU_ResultFineTuning(pSampleResult Result)
+void MU_ResultFineTuning(pSampleData Result)
 {
-	int i;
-	for(i = 0; i < CURRENT_CHANNELS; i++)
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleFineTuningX(&CurrentCoeff[i], Result->Current[i]);
 	Result->Voltage = MU_SingleFineTuningX(&VoltageCoeff, Result->Voltage);
 }

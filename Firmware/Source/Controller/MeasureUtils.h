@@ -7,12 +7,12 @@
 
 // Definitions
 #define CURRENT_CHANNELS		4
-typedef struct __SampleResult
+typedef struct __SampleData
 {
 	float Voltage;
 	float Current[CURRENT_CHANNELS];
 
-} SampleResult, *pSampleResult;
+} SampleData, *pSampleData;
 
 // Variables
 extern uint16_t DMAVoltage[];
@@ -21,7 +21,7 @@ extern uint16_t DMACurrent34[];
 
 // Functions
 void MU_CacheVariables(CurrentChannel SelectedChannel);
-SampleResult MU_GetSampleResult();
-void MU_ResultFineTuning(pSampleResult Result);
+void MU_GetSampleData(pSampleData Result);
+void MU_ResultFineTuning(pSampleData Result);
 
 #endif // __MEASURE_UTILS_H
