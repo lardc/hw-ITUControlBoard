@@ -57,13 +57,13 @@ void T1PWM_SetDutyCycle(int16_t Value)
 	// Выбор полярности формирователя
 	if(Value > 0)
 	{
-		TIM1->CCR1 = IntValue;
+		TIM1->CCR1 = Value;
 		TIM1->CCR2 = 0;
 	}
 	else if(Value < 0)
 	{
 		TIM1->CCR1 = 0;
-		TIM1->CCR2 = IntValue;
+		TIM1->CCR2 = Value;
 	}
 	else
 		TIM1->CCR1 = TIM1->CCR2 = 0;
