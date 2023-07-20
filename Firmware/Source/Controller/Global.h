@@ -23,15 +23,9 @@
 #define ADC_DMA_VOLTAGE_SAMPLES	ADC_DMA_SAMPLES
 #define ADC_DMA_CURRENT_SAMPLES	(ADC_DMA_SAMPLES * 2)
 
-// Заготовки для быстрого деления
-#define VOLTAGE_MPY_DIV			(1.0f / ADC_DMA_VOLTAGE_SAMPLES)
-#define CURRENT_MPY_DIV			(2.0f / ADC_DMA_CURRENT_SAMPLES)
-#define RESOLUTION_MPY_DIV		(1.0f / ADC_RESOLUTION)
-
-// Параметры регулятора
-#define REGULATOR_I_ERR_SAT		15000.0f	// Величина насыщения интегральной ошибки
-
-// Прочие
-#define RELAY_SWITCH_DELAY		100		// Задержка переключения реле (в мс)
+// Параметры остановки / снижения ШИМ
+#define PWM_MIN_REDUCE_RATE			50	// минимальная скорость снижения ШИМ в тиках
+#define PWM_REDUCE_RATE_MAX_STEPS	4	// максимум шагов снижения
+#define PWM_TRIM_CTRL_VOLTAGE		_IQ(2500)	// Амплитудное напряжение, на котором выполняется подрезка ШИМ снизу (в В)
 
 #endif //  __GLOBAL_H

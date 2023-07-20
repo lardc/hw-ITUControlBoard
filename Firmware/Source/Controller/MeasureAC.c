@@ -13,12 +13,15 @@
 #include "Controller.h"
 #include "Global.h"
 #include "MeasureUtils.h"
+#include "Timer1PWM.h"
+#include <math.h>
+#include <stdlib.h>
 
 // Definitions
-#define SQROOT2						_IQ(1.4142f)
-#define SINE_FREQUENCY				50
-#define SINE_PERIOD_PULSES			(PWM_FREQUENCY / SINE_FREQUENCY)
-#define PWM_LIMIT					(ZW_PWM_DUTY_BASE * PWM_MAX_SAT / 100)
+#define SQROOT2						1.4142f
+#define SINE_PERIOD_PULSES			(PWM_FREQUENCY / PWM_SINE_FREQ)
+#define SINE_PERIOD_PULSES_MPY_DIV	(1.0f / SINE_PERIOD_PULSES)
+#define SIGN(a)						(((a) >= 0) ? 1 : -1)
 
 // Types
 typedef enum __ProcessState
@@ -29,17 +32,18 @@ typedef enum __ProcessState
 	PS_Break
 } ProcessState;
 
-typedef struct __RingBufferElement
+typedef struct __PowerData
 {
-	Int32U Voltage;
-	Int32U Current;
-	Int32S Wreal;
-} RingBufferElement, *pRingBufferElement;
+	SampleData Sample;
+	float Power[CURRENT_CHANNELS];
+
+} PowerData, *pPowerData;
+const PowerData PowerDataZero = {0};
 
 typedef float (*CurrentCalc)(Int32S RawValue, bool RMSFineCorrection);
 
 // Variables
-static RingBufferElement RingBuffer[SINE_PERIOD_PULSES];
+static PowerData RingBuffer[SINE_PERIOD_PULSES], RealSquareSum;
 static Int16U RingBufferPointer;
 static bool RingBufferFull;
 
@@ -48,46 +52,48 @@ static Int16U RawZeroVoltage, RawZeroCurrent, FECounter, FECounterMax;
 static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
 static float LimitIrms, Isat_level, Irange;
-static Int32U TimeCounter, PlateCounterTop, Vsq_sum, Isq_sum;
+static float PWMLimit;
+static Int32U TimeCounter, PlateCounterTop;
 static bool DbgMutePWM, DbgSRAM, StopByActiveCurrent, RequireSoftStop;
-static Int32S Wreal_sum;
 
 static ProcessState State;
 static ProcessBreakReason BreakReason;
 static CurrentCalc MAC_CurrentCalc;
 
 // Forward functions
+static void MAC_PowerDataAdd(pPowerData BaseVale, pPowerData AddValue, bool Sum);
+static void MAC_CalculateRingBufferValue(pPowerData Result, pSampleData Sample);
+static void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyValue);
+static void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi);
 static Int16S MAC_CalcPWMFromVoltageAmplitude();
-static void MAC_HandleVI(pDataSampleIQ Instant, pDataSampleIQ RMS, float *CosPhi);
-static float MAC_SQRoot(Int32U Value);
-static float MAC_PeriodController();
+static void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi);
+//static float MAC_PeriodController();
 static void MAC_ControlCycle();
 static bool MAC_InitStartState();
 
 // Functions
 bool MAC_StartProcess()
 {
-	if(!MAC_InitStartState())
-		return FALSE;
-
-	// Enable control cycle
-	CONTROL_SubcribeToCycle(MAC_ControlCycle);
-	CONTROL_SwitchRTCycle(TRUE);
-	
-	return TRUE;
+	if(MAC_InitStartState())
+	{
+		T1PWM_Start();
+		return true;
+	}
+	else
+		return false;
 }
 // ----------------------------------------
 
-void inline MAC_SetPWM(Int16S pwm)
+static void MAC_SetPWM(Int16S pwm)
 {
-	ZwPWMB_SetValue12(DbgMutePWM ? 0 : pwm);
+	T1PWM_SetDutyCycle(DbgMutePWM ? 0 : pwm);
 }
 // ----------------------------------------
 
-Int16S inline MAC_GetPWMReduceRate(Int16S PWMDelta)
+Int16S MAC_GetPWMReduceRate(Int16S PWMDelta)
 {
 	Int16S res = PWMDelta / PWM_REDUCE_RATE_MAX_STEPS + SIGN(PWMDelta);
-	return (ABS(res) > PWM_MIN_REDUCE_RATE) ? res : (PWM_MIN_REDUCE_RATE * SIGN(PWMDelta));
+	return (abs(res) > PWM_MIN_REDUCE_RATE) ? res : (PWM_MIN_REDUCE_RATE * SIGN(PWMDelta));
 }
 // ----------------------------------------
 
@@ -96,124 +102,137 @@ void MAC_RequestStop(ProcessBreakReason Reason)
 	if(State != PS_Break)
 	{
 		if(Reason == PBR_RequestSoftStop)
-			RequireSoftStop = TRUE;
+			RequireSoftStop = true;
 
 		// Запрос на мягкую остановку имеет низший приоритет
 		else
 		{
 			PWMReduceRate = MAC_GetPWMReduceRate(PWM);
 			State = PS_Break;
-			RequireSoftStop = FALSE;
+			RequireSoftStop = false;
 		}
 		BreakReason = Reason;
 	}
 }
 // ----------------------------------------
 
-#ifdef BOOT_FROM_FLASH
-#pragma CODE_SECTION(MAC_PeriodController, "ramfuncs");
-#endif
 static float MAC_PeriodController(float ActualVrms)
 {
 	float err = TimeCounter ? (ControlVrms - ActualVrms) : 0;
-	Ki_err += _IQmpy(err, Ki);
-	PeriodCorrection = Ki_err + _IQmpy(err, Kp);
+	Ki_err += err * Ki;
+	PeriodCorrection = Ki_err + err * Kp;
 
 	return err;
 }
 // ----------------------------------------
 
-#ifdef BOOT_FROM_FLASH
-#pragma CODE_SECTION(MAC_HandleVI, "ramfuncs");
-#endif
-static void MAC_HandleVI(pDataSampleIQ Instant, pDataSampleIQ RMS, float *CosPhi)
+static void MAC_PowerDataAdd(pPowerData BaseValue, pPowerData AddValue, bool Sum)
+{
+	float Sign = Sum ? 1 : -1;
+
+	BaseValue->Sample.Voltage += Sign * AddValue->Sample.Voltage;
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+	{
+		BaseValue->Sample.Current[i] += Sign * AddValue->Sample.Current[i];
+		BaseValue->Power[i] += Sign * AddValue->Power[i];
+	}
+}
+// ----------------------------------------
+
+static void MAC_CalculateRingBufferValue(pPowerData Result, pSampleData Sample)
+{
+	Result->Sample.Voltage = Sample->Voltage * Sample->Voltage;
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+	{
+		Result->Sample.Current[i] = Sample->Current[i] * Sample->Current[i];
+		Result->Power[i] = Sample->Voltage * Sample->Current[i];
+	}
+}
+// ----------------------------------------
+
+static void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyValue)
+{
+	Result->Sample.Voltage = sqrtf(InputValue->Sample.Voltage * MultiplyValue);
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+	{
+		Result->Sample.Current[i] = sqrtf(InputValue->Sample.Current[i] * MultiplyValue);
+		Result->Power[i] = Result->Sample.Voltage * Result->Sample.Current[i];
+	}
+}
+// ----------------------------------------
+
+static void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi)
+{
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+	{
+		float Wreal_abs = fabsf(SquareSum->Power[i]) * MultiplyValue;
+		float Wrms = PowerRMS->Power[i];
+
+		if(Wreal_abs == 0)
+			CosPhi[i] = 0;
+		else
+		{
+			CosPhi[i] = Wreal_abs / Wrms;
+
+			// Если из-за погрешностей значение больше 1
+			if(CosPhi[i] > 1.0f)
+				CosPhi[i] = 1.0f;
+		}
+	}
+}
+// ----------------------------------------
+
+static void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
 {
 	// Вычитание из суммы затираемого значения
-	Vsq_sum -= RingBuffer[RingBufferPointer].Voltage;
-	Isq_sum -= RingBuffer[RingBufferPointer].Current;
-	Wreal_sum -= RingBuffer[RingBufferPointer].Wreal;
+	if(RingBufferPointer != 0 || RingBufferFull)
+		MAC_PowerDataAdd(&RealSquareSum, &RingBuffer[RingBufferPointer], false);
 
-	// Расчёт мгновенных значений
-	Int32S Vraw = (Int32S)SS_Voltage - RawZeroVoltage;
-	Int32S Iraw = (Int32S)SS_Current - RawZeroCurrent;
-
-	Instant->Voltage = MU_CalcVoltage(_IQI(Vraw), FALSE);
-	Instant->Current = MAC_CurrentCalc(_IQI(Iraw), FALSE);
+	// Считывание последнего результата
+	MU_GetSampleData(Instant);
 
 	// Сохранение нового значения в кольцевой буфер
-	RingBufferElement RingSample;
-	RingSample.Voltage = Vraw * Vraw;
-	RingSample.Current = Iraw * Iraw;
-	RingSample.Wreal = Iraw * Vraw;
-	RingBuffer[RingBufferPointer] = RingSample;
-	RingBufferPointer++;
+	MAC_CalculateRingBufferValue(&RingBuffer[RingBufferPointer], Instant);
 
+	// Суммирование добавленного значения
+	MAC_PowerDataAdd(&RealSquareSum, &RingBuffer[RingBufferPointer], true);
+
+	// Сдвиг кольцевого буфера
+	RingBufferPointer++;
 	if(RingBufferPointer >= SINE_PERIOD_PULSES)
 	{
 		RingBufferPointer = 0;
-		RingBufferFull = TRUE;
+		RingBufferFull = true;
 	}
 
-	// Суммирование добавленного значения
-	Vsq_sum += RingSample.Voltage;
-	Isq_sum += RingSample.Current;
-	Wreal_sum += RingSample.Wreal;
+	// Определение делителя
+	float cntDiv = RingBufferFull ? SINE_PERIOD_PULSES_MPY_DIV : (1.0f / RingBufferPointer);
 
 	// Расчёт действующих значений
-	Int16U cnt = RingBufferFull ? SINE_PERIOD_PULSES : RingBufferPointer;
-	float Vsqr = MAC_SQRoot(Vsq_sum / cnt);
-	float Isqr = MAC_SQRoot(Isq_sum / cnt);
-	RMS->Voltage = MU_CalcVoltage(Vsqr, TRUE);
-	RMS->Current = MAC_CurrentCalc(Isqr, TRUE);
+	PowerData PowerRMS;
+	MAC_CalculateRMS(&PowerRMS, &RealSquareSum, cntDiv);
 
-	// Расчёт активной составляющей тока
-	Int32U Wreal_abs = ABS(Wreal_sum);
-	Int32U Wrms = _IQint(Vsqr) * _IQint(Isqr) * cnt;
+	// Корректировка действующих значений
+	MU_ResultFineTuning(&PowerRMS.Sample);
 
-	if(Wreal_abs)
-	{
-		// Расчёт косинус-фи с предотвращением переполнения
-		if((Wreal_abs & BIT31) || (Wrms & BIT31))
-		{
-			Wreal_abs >>= 1;
-			Wrms >>= 1;
-		}
-		*CosPhi = _IQdiv(Wreal_abs, Wrms);
+	// Копирование скорректированных значений
+	RMS->Voltage = PowerRMS.Sample.Voltage;
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+		RMS->Current[i] = PowerRMS.Sample.Current[i];
 
-		// Проверка насыщения значения из-за погрешностей расчёта
-		if(*CosPhi > _IQ(1))
-			*CosPhi = _IQ(1);
-
-		// Возвращение знака
-		if(Wreal_sum < 0)
-			*CosPhi = _IQmpyI32(*CosPhi, -1);
-	}
-	else
-		*CosPhi = 0;
+	// Расчёт косинус фи
+	MAC_CalculateCosinusPhi(&RealSquareSum, &PowerRMS, cntDiv, CosPhi);
 }
 // ----------------------------------------
 
-#ifdef BOOT_FROM_FLASH
-#pragma CODE_SECTION(MAC_SQRoot, "ramfuncs");
-#endif
-static float MAC_SQRoot(Int32U Value)
-{
-	float3 iq3_rms = _IQ3sqrt(_IQ3mpyI32(_IQ3(1), Value));
-	return _IQ3toIQ(iq3_rms);
-}
-// ----------------------------------------
-
-#ifdef BOOT_FROM_FLASH
-#pragma CODE_SECTION(MAC_ControlCycle, "ramfuncs");
-#endif
 static void MAC_ControlCycle()
 {
 	static ProcessState PrevState = PS_None;
 
 	// Считывание оцифрованных значений
-	float CosPhi;
-	DataSampleIQ Instant, RMS;
-	MAC_HandleVI(&Instant, &RMS, &CosPhi);
+	float CosPhi[CURRENT_CHANNELS];
+	SampleData Instant, RMS;
+	MAC_HandleVI(&Instant, &RMS, CosPhi);
 
 	float SavedCosPhi = CosPhi;
 	DataSampleIQ SavedRMS = RMS;
@@ -282,12 +301,12 @@ static void MAC_ControlCycle()
 	// Расчёт и уставка ШИМ
 	if(State == PS_Break)
 	{
-		PWM = (ABS(PWM) > ABS(PWMReduceRate)) ? (PWM - PWMReduceRate) : 0;
+		PWM = (abs(PWM) > abs(PWMReduceRate)) ? (PWM - PWMReduceRate) : 0;
 
 		// Завершение процесса
 		if(PWM == 0)
 		{
-			CONTROL_SwitchRTCycle(FALSE);
+			CONTROL_SwitchRTCycle(false);
 			CONTROL_SubcribeToCycle(NULL);
 
 			switch(BreakReason)
@@ -334,7 +353,7 @@ static void MAC_ControlCycle()
 		else
 		{
 			PWM = MAC_CalcPWMFromVoltageAmplitude();
-			if(ABS(PWM) == PWM_LIMIT)
+			if(abs(PWM) == PWMLimit)
 				MAC_RequestStop(PBR_PWMSaturation);
 		}
 	}
@@ -365,15 +384,15 @@ static void MAC_ControlCycle()
 Int16S inline MAC_PWMTrim(Int16S pwm)
 {
 	// Обрезка верхних значений
-	if(ABS(pwm) > PWM_LIMIT)
-		return SIGN(pwm) * PWM_LIMIT;
+	if(abs(pwm) > PWMLimit)
+		return SIGN(pwm) * PWMLimit;
 
 	// Порог обрезки нижних значений
 	else if((ControlVrms + PeriodCorrection) > PWM_TRIM_CTRL_VOLTAGE)
 	{
-		if(ABS(pwm) < (MinSafePWM / 2))
+		if(abs(pwm) < (MinSafePWM / 2))
 			return 0;
-		else if(ABS(pwm) < MinSafePWM)
+		else if(abs(pwm) < MinSafePWM)
 			return MinSafePWM * SIGN(pwm);
 		else
 			return pwm;
@@ -410,7 +429,7 @@ static bool MAC_InitStartState()
 	Kp = _FPtoIQ2(DataTable[REG_KP], 100);
 	Ki = _FPtoIQ2(DataTable[REG_KI], 100);
 	
-	VrmsRateStep = _FPtoIQ2(DataTable[REG_VOLTAGE_RATE] * 100, SINE_FREQUENCY);
+	VrmsRateStep = _FPtoIQ2(DataTable[REG_VOLTAGE_RATE] * 100, PWM_SINE_FREQ);
 	PlateCounterTop = CONTROL_FREQUENCY * DataTable[REG_TEST_TIME];
 	
 	TransAndPWMCoeff = _FPtoIQ2(ZW_PWM_DUTY_BASE, DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
@@ -423,8 +442,10 @@ static bool MAC_InitStartState()
 	FERelative = _FPtoIQ2(DataTable[REG_FE_RELATIVE], 100);
 	FECounterMax = DataTable[REG_FE_COUNTER_MAX];
 
-	DbgSRAM = DataTable[REG_DBG_SRAM] ? TRUE : FALSE;
-	DbgMutePWM = DataTable[REG_DBG_MUTE_PWM] ? TRUE : FALSE;
+	PWMLimit = T1PWM_GetPWMBase() * PWM_MAX_SAT;
+
+	DbgSRAM = DataTable[REG_DBG_SRAM] ? true : false;
+	DbgMutePWM = DataTable[REG_DBG_MUTE_PWM] ? true : false;
 	
 	MU_InitCoeffVoltage();
 	MU_InitCoeffCurrent1();
@@ -436,21 +457,18 @@ static bool MAC_InitStartState()
 	FECounter = TimeCounter = 0;
 	Ki_err = PeriodCorrection = 0;
 	ActualInstantVoltageSet = 0;
-	RequireSoftStop = FALSE;
+	RequireSoftStop = false;
 
-	Vsq_sum = Isq_sum = 0;
 	// Очистка кольцевого буфера
 	Int16U i;
 	for(i = 0; i < SINE_PERIOD_PULSES; i++)
-	{
-		RingBuffer[i].Voltage = 0;
-		RingBuffer[i].Current = 0;
-		RingBuffer[i].Wreal = 0;
-	}
-	RingBufferFull = FALSE;
+		RingBuffer[i] = PowerDataZero;
+
+	RingBufferFull = false;
 	RingBufferPointer = 0;
 
-	Wreal_sum = 0;
+	RealSquareSum = PowerDataZero;
+
 
 	State = PS_Ramp;
 	BreakReason = PBR_None;
@@ -480,7 +498,7 @@ static bool MAC_InitStartState()
 	if(res)
 	{
 		// Первый запрос данных
-		res = SS_GetData(TRUE);
+		res = SS_GetData(true);
 
 		// Задержка на переключение оптопар
 		if(res)
