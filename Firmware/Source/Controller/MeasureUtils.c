@@ -10,6 +10,12 @@
 
 // Definitions
 #define DEV_OBJ_DICT_CHAN_STEP	12
+
+// Заготовки для быстрого деления
+#define VOLTAGE_MPY_DIV			(1.0f / ADC_DMA_VOLTAGE_SAMPLES)
+#define CURRENT_MPY_DIV			(2.0f / ADC_DMA_CURRENT_SAMPLES)
+#define RESOLUTION_MPY_DIV		(1.0f / ADC_RESOLUTION)
+
 typedef struct __Coefficients
 {
 	float K;
@@ -30,6 +36,7 @@ static float ShuntResistanceDiv;
 // Forward functions
 void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex);
 float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent);
+float MU_SingleFineTuningX(Coefficients *coeff, float Value);
 
 // Functions
 void MU_CacheVariables(CurrentChannel SelectedChannel)
@@ -92,6 +99,12 @@ float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 	if(IsCurrent)
 		Value *= ShuntResistanceDiv;
 
+	return Value;
+}
+//------------------------------------------
+
+float MU_SingleFineTuningX(Coefficients *coeff, float Value)
+{
 	// Тонкая корректировка
 	return Value * Value * coeff->P2 + Value * coeff->P1 + coeff->P0;
 }
@@ -122,5 +135,14 @@ SampleResult MU_GetSampleResult()
 		result.Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
 
 	return result;
+}
+//------------------------------------------
+
+void MU_ResultFineTuning(pSampleResult Result)
+{
+	int i;
+	for(i = 0; i < CURRENT_CHANNELS; i++)
+		Result->Current[i] = MU_SingleFineTuningX(&CurrentCoeff[i], Result->Current[i]);
+	Result->Voltage = MU_SingleFineTuningX(&VoltageCoeff, Result->Voltage);
 }
 //------------------------------------------

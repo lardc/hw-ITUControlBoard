@@ -12,7 +12,7 @@ typedef struct __SampleResult
 	float Voltage;
 	float Current[CURRENT_CHANNELS];
 
-} SampleResult;
+} SampleResult, *pSampleResult;
 
 // Variables
 extern uint16_t DMAVoltage[];
@@ -22,5 +22,6 @@ extern uint16_t DMACurrent34[];
 // Functions
 void MU_CacheVariables(CurrentChannel SelectedChannel);
 SampleResult MU_GetSampleResult();
+void MU_ResultFineTuning(pSampleResult Result);
 
 #endif // __MEASURE_UTILS_H
