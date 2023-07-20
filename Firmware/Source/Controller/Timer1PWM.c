@@ -7,12 +7,8 @@
 #include "math.h"
 #include "LowLevel.h"
 
-// Defines
-#define T1PWM_MAX_OUTPUT	0.95f
-
 // Variables
 static uint32_t PWMBase = 0;
-volatile uint32_t T1PWM_Offset = 0;
 
 // Functions
 void T1PWM_Init(uint32_t SystemClock, uint32_t Period)
@@ -56,23 +52,18 @@ void T1PWM_Init(uint32_t SystemClock, uint32_t Period)
 }
 //------------------------------------------------
 
-void T1PWM_SetDutyCycle(float Value)
+void T1PWM_SetDutyCycle(int16_t Value)
 {
-	// Проверка значения на насыщение
-	float MaxOutput = T1PWM_MAX_OUTPUT * PWMBase;
-	float absValue = fabsf(Value);
-	uint32_t IntValue = (uint32_t)(absValue > MaxOutput ? MaxOutput : absValue);
-
 	// Выбор полярности формирователя
 	if(Value > 0)
 	{
-		TIM1->CCR1 = IntValue + T1PWM_Offset;
+		TIM1->CCR1 = IntValue;
 		TIM1->CCR2 = 0;
 	}
 	else if(Value < 0)
 	{
 		TIM1->CCR1 = 0;
-		TIM1->CCR2 = IntValue + T1PWM_Offset;
+		TIM1->CCR2 = IntValue;
 	}
 	else
 		TIM1->CCR1 = TIM1->CCR2 = 0;
