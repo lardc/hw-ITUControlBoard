@@ -53,7 +53,7 @@ static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
 static float LimitIrms, Isat_level, Irange;
 static float PWMLimit;
-static Int32U TimeCounter, PlateCounterTop;
+static Int32U TimeCounter, PlateCounterTop, FailedCurrentChannel;
 static bool DbgMutePWM, DbgSRAM, StopByActiveCurrent, RequireSoftStop;
 
 static ProcessState State;
@@ -177,6 +177,8 @@ static void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, f
 			// Если из-за погрешностей значение больше 1
 			if(CosPhi[i] > 1.0f)
 				CosPhi[i] = 1.0f;
+			else if(CosPhi[i] < -1.0f)
+				CosPhi[i] = -1.0f;
 		}
 	}
 }
@@ -227,6 +229,7 @@ static void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
 
 static void MAC_ControlCycle()
 {
+	int i;
 	static ProcessState PrevState = PS_None;
 
 	// Считывание оцифрованных значений
@@ -234,15 +237,26 @@ static void MAC_ControlCycle()
 	SampleData Instant, RMS;
 	MAC_HandleVI(&Instant, &RMS, CosPhi);
 
-	float SavedCosPhi = CosPhi;
-	DataSampleIQ SavedRMS = RMS;
+	// Сохранение копии значений
+	SampleData SavedRMS = RMS;
+	float SavedCosPhi[CURRENT_CHANNELS];
+	for(i = 0; i < CURRENT_CHANNELS; i++)
+		SavedCosPhi[i] = CosPhi[i];
 
 	// Проверка превышения значения тока
-	float CompareCurrent = _IQmpy(StopByActiveCurrent ? _IQabs(CosPhi) : _IQ(1), RMS.Current);
-	if(State != PS_Break && CompareCurrent >= LimitIrms)
+	if(State != PS_Break)
 	{
-		SavedCosPhi = (_IQabs(RMS.Voltage) > SC_VOLTAGE_THR) ? CosPhi : _IQ(1);
-		MAC_RequestStop(PBR_CurrentLimit);
+		for(i = 0; i < CURRENT_CHANNELS; i++)
+		{
+			float CompareCurrent = StopByActiveCurrent ? fabsf(CosPhi[i]) * RMS.Current[i] : RMS.Current[i];
+			if(CompareCurrent >= LimitIrms)
+			{
+				SavedCosPhi[i] = fabs(RMS.Voltage) > SC_VOLTAGE_THR ? CosPhi[i] : 1.0f;
+				MAC_RequestStop(PBR_CurrentLimit);
+				FailedCurrentChannel = i;
+				break;
+			}
+		}
 	}
 
 	// Работа амплитудного регулятора
@@ -260,7 +274,7 @@ static void MAC_ControlCycle()
 
 		// Проверка на ошибку следования
 		if(State != PS_Break && Kp && Ki && !DbgMutePWM &&
-				_IQdiv(_IQabs(PeriodError), ControlVrms) > FERelative && _IQabs(PeriodError) > FEAbsolute)
+				fabsf(PeriodError) > (FERelative * ControlVrms) && fabsf(PeriodError) > FEAbsolute)
 		{
 			FECounter++;
 		}
@@ -290,9 +304,13 @@ static void MAC_ControlCycle()
 				case PS_Plate:
 					if(TimeCounter >= PlateCounterTop)
 					{
-						SavedCosPhi = CosPhi;
+						for(i = 0; i < CURRENT_CHANNELS; i++)
+							SavedCosPhi[i] = CosPhi[i];
 						MAC_RequestStop(PBR_None);
 					}
+					break;
+
+				default:
 					break;
 			}
 		}
@@ -306,9 +324,7 @@ static void MAC_ControlCycle()
 		// Завершение процесса
 		if(PWM == 0)
 		{
-			CONTROL_SwitchRTCycle(false);
-			CONTROL_SubcribeToCycle(NULL);
-
+			T1PWM_Stop();
 			switch(BreakReason)
 			{
 				case PBR_None:
