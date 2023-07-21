@@ -42,19 +42,32 @@ DeviceSubState CONTROL_SubState = DSS_None;
 volatile DeviceState CONTROL_State = DS_None;
 static Boolean CycleActive = false;
 volatile Int64U CONTROL_TimeCounter = 0;
-// Storage
-volatile Int16U CONTROL_VSetFast[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_PWMSetFast[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_VResultFast[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_IResultFast[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_VSetRMS[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_VControlRMS[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_VResultRMS[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_IResultRMS[VALUES_x_SIZE] = {0};
-volatile Int16U CONTROL_CounterFast = 0;
-volatile Int16U CONTROL_CounterRMS = 0;
 
-/// Forward functions
+// Storage
+//
+float MEMBUF_Values_V[VALUES_x_SIZE];
+float MEMBUF_Values_I1[VALUES_x_SIZE];
+float MEMBUF_Values_I2[VALUES_x_SIZE];
+float MEMBUF_Values_I3[VALUES_x_SIZE];
+float MEMBUF_Values_I4[VALUES_x_SIZE];
+
+float MEMBUF_Values_Vrms[VALUES_x_SIZE];
+float MEMBUF_Values_I1rms[VALUES_x_SIZE];
+float MEMBUF_Values_I2rms[VALUES_x_SIZE];
+float MEMBUF_Values_I3rms[VALUES_x_SIZE];
+float MEMBUF_Values_I4rms[VALUES_x_SIZE];
+
+Int16U MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
+Int16U MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
+Int16U MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
+Int16U MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
+
+Int16U MEMBUF_Values_PWM[VALUES_x_SIZE];
+Int16U MEMBUF_Values_Err[VALUES_x_SIZE];
+
+Int16U MEMBUF_ScopeValues_Counter = 0, MEMBUF_ErrorValues_Counter = 0;
+
+// Forward functions
 //
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError);
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
@@ -68,30 +81,31 @@ void CONTROL_ProcessSubStates();
 void CONTROL_Init()
 {
 	// Переменные для конфигурации EndPoint
-	Int16U EPIndexes[EP_COUNT] = {EP_V_SETPOINT_FAST, EP_PWM_SETPOINT_FAST, EP_V_RESULT_FAST, EP_I_RESULT_FAST,
-			EP_VRMS_SETPOINT, EP_VRMS_CTRL_SETPOINT, EP_VRMS_RESULT, EP_IRMS_RESULT};
+	Int16U EPIndexes[EP_COUNT] = {EP_COS_PHI1, EP_COS_PHI2, EP_COS_PHI3, EP_COS_PHI4,
+			EP_PWM, EP_VOLTAGE_ERROR};
 
 	Int16U EPSized[EP_COUNT] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE,
-			VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE};
+			VALUES_x_SIZE, VALUES_x_SIZE};
 
 	// Сокращения
-	pInt16U cf = (pInt16U)&CONTROL_CounterFast;
-	pInt16U cr = (pInt16U)&CONTROL_CounterRMS;
-	pInt16U EPCounters[EP_COUNT] = {cf, cf, cf, cf, cr, cr, cr, cr};
+	pInt16U sv = &MEMBUF_ScopeValues_Counter;
+	pInt16U EPCounters[EP_COUNT] = {sv, sv, sv, sv, sv, &MEMBUF_ErrorValues_Counter};
 
-	pInt16U EPDatas[EP_COUNT] = {(pInt16U)CONTROL_VSetFast, (pInt16U)CONTROL_PWMSetFast,
-			(pInt16U)CONTROL_VResultFast, (pInt16U)CONTROL_IResultFast,
-			(pInt16U)CONTROL_VSetRMS, (pInt16U)CONTROL_VControlRMS,
-			(pInt16U)CONTROL_VResultRMS, (pInt16U)CONTROL_IResultRMS};
+	pInt16U EPDatas[EP_COUNT] = {MEMBUF_Values_CosPhi1, MEMBUF_Values_CosPhi2,
+			MEMBUF_Values_CosPhi3, MEMBUF_Values_CosPhi4,
+			MEMBUF_Values_PWM, MEMBUF_Values_Err};
 
 	// Конфигурация сервиса работы Data-table и EPROM
 	EPROMServiceConfig EPROMService = {(FUNC_EPROM_WriteValues)&NFLASH_WriteDT, (FUNC_EPROM_ReadValues)&NFLASH_ReadDT};
+
 	// Инициализация data table
 	DT_Init(EPROMService, false);
 	DT_SaveFirmwareInfo(CAN_SLAVE_NID, 0);
+
 	// Инициализация device profile
 	DEVPROFILE_Init(&CONTROL_DispatchAction, &CycleActive);
 	DEVPROFILE_InitEPService(EPIndexes, EPSized, EPCounters, EPDatas);
+
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
 	CONTROL_ResetToDefaultState();

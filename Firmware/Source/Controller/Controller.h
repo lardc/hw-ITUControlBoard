@@ -8,21 +8,30 @@
 // Variables
 extern volatile Int64U CONTROL_TimeCounter;
 
-extern volatile Int16U CONTROL_VSetFast[];
-extern volatile Int16U CONTROL_PWMSetFast[];
-extern volatile Int16U CONTROL_VResultFast[];
-extern volatile Int16U CONTROL_IResultFast[];
-extern volatile Int16U CONTROL_VSetRMS[];
-extern volatile Int16U CONTROL_VControlRMS[];
-extern volatile Int16U CONTROL_VResultRMS[];
-extern volatile Int16U CONTROL_IResultRMS[];
+extern float MEMBUF_Values_V[];
+extern float MEMBUF_Values_I1[];
+extern float MEMBUF_Values_I2[];
+extern float MEMBUF_Values_I3[];
+extern float MEMBUF_Values_I4[];
 
-extern volatile Int16U CONTROL_CounterFast;
-extern volatile Int16U CONTROL_CounterRMS;
+extern float MEMBUF_Values_Vrms[];
+extern float MEMBUF_Values_I1rms[];
+extern float MEMBUF_Values_I2rms[];
+extern float MEMBUF_Values_I3rms[];
+extern float MEMBUF_Values_I4rms[];
+
+extern Int16U MEMBUF_Values_CosPhi1[];
+extern Int16U MEMBUF_Values_CosPhi2[];
+extern Int16U MEMBUF_Values_CosPhi3[];
+extern Int16U MEMBUF_Values_CosPhi4[];
+
+extern Int16U MEMBUF_Values_CosPWM[];
+extern Int16U MEMBUF_Values_Err[];
+
+extern Int16U MEMBUF_ScopeValues_Counter, MEMBUF_ErrorValues_Counter;
 
 // Functions
 void CONTROL_Init();
 void CONTROL_Idle();
-void CONTROL_ProcessPWMStop(uint16_t Problem);
 
 #endif // __CONTROLLER_H

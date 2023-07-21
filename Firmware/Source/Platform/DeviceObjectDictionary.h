@@ -168,10 +168,12 @@
 #define OPRESULT_FAIL					2	// Operation failed
 
 // ENDPOINTS
-#define EP_V_SETPOINT_FAST				1	// Быстрая уставка по напряжению
-#define EP_PWM_SETPOINT_FAST			2	// Быстрая уставка по ШИМ
-#define EP_V_RESULT_FAST				3	// Быстрая оцифровка напряжения
-#define EP_I_RESULT_FAST				4	// Быстрая оцифровка тока
+#define EP_COS_PHI1						1	// Косинус фи канала тока 1
+#define EP_COS_PHI2						2	// Косинус фи канала тока 2
+#define EP_COS_PHI3						3	// Косинус фи канала тока 3
+#define EP_COS_PHI4						4	// Косинус фи канала тока 4
+#define EP_PWM							5	// Мгновенное значение ШИМ
+#define EP_VOLTAGE_ERROR				6	// Ошибка регулирования напряжения, В
 
 #define EP_VRMS_SETPOINT				5	// Уставка по действующему значению напряжения
 #define EP_VRMS_CTRL_SETPOINT			6	// Регулируемая уставка по действующему значению напряжения
