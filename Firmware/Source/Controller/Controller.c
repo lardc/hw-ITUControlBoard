@@ -52,18 +52,18 @@ float MEMBUF_Values_I3[VALUES_x_SIZE];
 float MEMBUF_Values_I4[VALUES_x_SIZE];
 
 float MEMBUF_Values_Vrms[VALUES_x_SIZE];
-float MEMBUF_Values_I1rms[VALUES_x_SIZE];
-float MEMBUF_Values_I2rms[VALUES_x_SIZE];
-float MEMBUF_Values_I3rms[VALUES_x_SIZE];
-float MEMBUF_Values_I4rms[VALUES_x_SIZE];
+float MEMBUF_Values_Irms1[VALUES_x_SIZE];
+float MEMBUF_Values_Irms2[VALUES_x_SIZE];
+float MEMBUF_Values_Irms3[VALUES_x_SIZE];
+float MEMBUF_Values_Irms4[VALUES_x_SIZE];
 
-Int16U MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
-Int16U MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
-Int16U MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
-Int16U MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
+Int16S MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
+Int16S MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
+Int16S MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
+Int16S MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
 
-Int16U MEMBUF_Values_PWM[VALUES_x_SIZE];
-Int16U MEMBUF_Values_Err[VALUES_x_SIZE];
+Int16S MEMBUF_Values_PWM[VALUES_x_SIZE];
+Int16S MEMBUF_Values_Err[VALUES_x_SIZE];
 
 Int16U MEMBUF_ScopeValues_Counter = 0, MEMBUF_ErrorValues_Counter = 0;
 
@@ -80,20 +80,33 @@ void CONTROL_ProcessSubStates();
 //
 void CONTROL_Init()
 {
-	// Переменные для конфигурации EndPoint
+	// Целочисленные EP
 	Int16U EPIndexes[EP_COUNT] = {EP_COS_PHI1, EP_COS_PHI2, EP_COS_PHI3, EP_COS_PHI4,
 			EP_PWM, EP_VOLTAGE_ERROR};
 
 	Int16U EPSized[EP_COUNT] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE,
 			VALUES_x_SIZE, VALUES_x_SIZE};
 
-	// Сокращения
 	pInt16U sv = &MEMBUF_ScopeValues_Counter;
 	pInt16U EPCounters[EP_COUNT] = {sv, sv, sv, sv, sv, &MEMBUF_ErrorValues_Counter};
 
-	pInt16U EPDatas[EP_COUNT] = {MEMBUF_Values_CosPhi1, MEMBUF_Values_CosPhi2,
-			MEMBUF_Values_CosPhi3, MEMBUF_Values_CosPhi4,
-			MEMBUF_Values_PWM, MEMBUF_Values_Err};
+	pInt16U EPDatas[EP_COUNT] = {(pInt16U)MEMBUF_Values_CosPhi1, (pInt16U)MEMBUF_Values_CosPhi2,
+			(pInt16U)MEMBUF_Values_CosPhi3, (pInt16U)MEMBUF_Values_CosPhi4,
+			(pInt16U)MEMBUF_Values_PWM, (pInt16U)MEMBUF_Values_Err};
+
+	// Float EP
+	Int16U FEPIndexes[FEP_COUNT] = {FEP_VOLTAGE, FEP_CURRENT1, FEP_CURRENT2, FEP_CURRENT3, FEP_CURRENT4,
+			FEP_VOLTAGE_RMS, FEP_CURRENT_RMS1, FEP_CURRENT_RMS2, FEP_CURRENT_RMS3, FEP_CURRENT_RMS4};
+
+	Int16U FEPSized[FEP_COUNT] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE,
+			VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE};
+
+	pInt16U FEPCounters[FEP_COUNT] = {sv, sv, sv, sv, sv, sv, sv, sv, sv, sv};
+
+	pFloat32 FEPDatas[FEP_COUNT] = {MEMBUF_Values_V, MEMBUF_Values_I1, MEMBUF_Values_I2,
+			MEMBUF_Values_I3, MEMBUF_Values_I4,
+			MEMBUF_Values_Vrms, MEMBUF_Values_Irms1, MEMBUF_Values_Irms2,
+			MEMBUF_Values_Irms3, MEMBUF_Values_Irms4};
 
 	// Конфигурация сервиса работы Data-table и EPROM
 	EPROMServiceConfig EPROMService = {(FUNC_EPROM_WriteValues)&NFLASH_WriteDT, (FUNC_EPROM_ReadValues)&NFLASH_ReadDT};
@@ -105,6 +118,7 @@ void CONTROL_Init()
 	// Инициализация device profile
 	DEVPROFILE_Init(&CONTROL_DispatchAction, &CycleActive);
 	DEVPROFILE_InitEPService(EPIndexes, EPSized, EPCounters, EPDatas);
+	DEVPROFILE_InitFEPService(FEPIndexes, FEPSized, FEPCounters, FEPDatas);
 
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
@@ -118,13 +132,14 @@ void CONTROL_ResetResults()
 	DataTable[REG_DISABLE_REASON] = DF_NONE;
 	DataTable[REG_WARNING] = WARNING_NONE;
 	DataTable[REG_PROBLEM] = PROBLEM_NONE;
-	DataTable[REG_OP_RESULT] = OPRESULT_NONE;
-
-	DataTable[REG_VOLTAGE_RESULT] = 0;
-	DataTable[REG_VOLTAGE_RESULT_32] = 0;
-	DataTable[REG_CURRENT_RESULT] = 0;
-	DataTable[REG_CURRENT_RESULT_32] = 0;
+	DataTable[REG_FINISHED] = OPRESULT_NONE;
 	DataTable[REG_VOLTAGE_READY] = 0;
+	DataTable[REG_TEST_PASSED] = 0;
+	DataTable[REG_FAILED_CURRENT_CHANNEL] = 0;
+
+	// Очистка результатов
+	for(int i = 200; i <= 220; i++)
+		DataTable[i] = 0;
 
 	DEVPROFILE_ResetScopes(0);
 	DEVPROFILE_ResetEPReadState();
@@ -221,11 +236,7 @@ void CONTROL_ProcessPWMStop(uint16_t Problem)
 
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
 {
-	CONTROL_State = NewState;
-	DataTable[REG_DEV_STATE] = NewState;
-
-	CONTROL_SubState = NewSubState;
-	DataTable[REG_SUB_STATE] = NewSubState;
+	DataTable[REG_DEV_STATE] = CONTROL_State = NewState;
 }
 //------------------------------------------
 
