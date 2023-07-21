@@ -162,13 +162,48 @@ void MU_LogScopeError(float Value)
 	if(ScopeDivErrCounter++ >= ScopeDivErrCounterMax)
 	{
 		ScopeDivErrCounter = 0;
-		MEMBUF_Values_Err[ErrorValuesCounter++] = (uint16_t)((int16_t)Value);
+		MEMBUF_Values_Err[ErrorValuesCounter++] = (int16_t)Value;
 
 		if(MEMBUF_ErrorValues_Counter < VALUES_x_SIZE)
 			MEMBUF_ErrorValues_Counter = ErrorValuesCounter;
 
 		if(ErrorValuesCounter >= VALUES_x_SIZE)
 			ErrorValuesCounter = 0;
+	}
+}
+//------------------------------------------
+
+void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM)
+{
+	if(ScopeDivCounter++ >= ScopeDivCounterMax)
+	{
+		ScopeDivCounter = 0;
+
+		MEMBUF_Values_V[ScopeValuesCounter] = Instant->Voltage;
+		MEMBUF_Values_I1[ScopeValuesCounter] = Instant->Current[0];
+		MEMBUF_Values_I2[ScopeValuesCounter] = Instant->Current[1];
+		MEMBUF_Values_I3[ScopeValuesCounter] = Instant->Current[2];
+		MEMBUF_Values_I4[ScopeValuesCounter] = Instant->Current[3];
+
+		MEMBUF_Values_Vrms[ScopeValuesCounter] = RMS->Voltage;
+		MEMBUF_Values_I1rms[ScopeValuesCounter] = RMS->Current[0];
+		MEMBUF_Values_I2rms[ScopeValuesCounter] = RMS->Current[1];
+		MEMBUF_Values_I3rms[ScopeValuesCounter] = RMS->Current[2];
+		MEMBUF_Values_I4rms[ScopeValuesCounter] = RMS->Current[3];
+
+		MEMBUF_Values_CosPhi1[ScopeValuesCounter] = (int16_t)(CosPhi[0] * 1000);
+		MEMBUF_Values_CosPhi2[ScopeValuesCounter] = (int16_t)(CosPhi[1] * 1000);
+		MEMBUF_Values_CosPhi3[ScopeValuesCounter] = (int16_t)(CosPhi[2] * 1000);
+		MEMBUF_Values_CosPhi4[ScopeValuesCounter] = (int16_t)(CosPhi[3] * 1000);
+
+		MEMBUF_Values_PWM[ScopeValuesCounter] = PWM;
+		ScopeValuesCounter++;
+
+		if(MEMBUF_ScopeValues_Counter < VALUES_x_SIZE)
+			MEMBUF_ScopeValues_Counter = ScopeValuesCounter;
+
+		if(ScopeValuesCounter >= VALUES_x_SIZE)
+			ScopeValuesCounter = 0;
 	}
 }
 //------------------------------------------
