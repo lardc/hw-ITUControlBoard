@@ -144,17 +144,38 @@
 #define REG_DISABLE_REASON				194	// Регистр Disable
 #define REG_WARNING						195	// Регистр Warning
 #define REG_PROBLEM						196	// Регистр Problem
-#define REG_OP_RESULT					197	// Регистр результата операции
-#define REG_SUB_STATE					198	// Регистр вспомогательного состояния
+#define REG_FINISHED					197	// Регистр результата операции
+#define REG_VOLTAGE_READY				198	// Флаг выхода на уставку по напряжению
+#define REG_TEST_PASSED					199	// Флаг успешного прохождения испытания прибором
 
-#define REG_VOLTAGE_RESULT				200 // Результат измерения напряжения (в мВ)
-#define REG_VOLTAGE_RESULT_32			201 // Результат измерения напряжения (в мВ)
-#define REG_CURRENT_RESULT				202 // Результат измерения тока (в мкА)
-#define REG_CURRENT_RESULT_32			203 // Результат измерения тока (в мкА)
-#define REG_VOLTAGE_READY				204	// Флаг готовности напряжения
+#define REG_RESULT_V					200	// Результат по напряжению, В
 
-#define REG_EP_LAST_POINTER_FAST		250	// Указатель на последий элемент быстрого логгирования
-#define REG_EP_LAST_POINTER_RMS			251	// Указатель на последий элемент логгирования RMS
+#define REG_RESULT_I1_mA				201	// Результат по току канала 1 часть значения мА
+#define REG_RESULT_I1_uA				202	// Результат по току канала 1 часть значения мкА
+#define REG_RESULT_I1_ACT_mA			203	// Результат по активному току канала 1 часть значения мА
+#define REG_RESULT_I1_ACT_uA			204	// Результат по активному току канала 1 часть значения мкА
+#define REG_RESULT_COS_PHI1				205	// Значение косинус фи канала 1 x1000
+
+#define REG_RESULT_I2_mA				206	// Результат по току канала 2 часть значения мА
+#define REG_RESULT_I2_uA				207	// Результат по току канала 2 часть значения мкА
+#define REG_RESULT_I2_ACT_mA			208	// Результат по активному току канала 2 часть значения мА
+#define REG_RESULT_I2_ACT_uA			209	// Результат по активному току канала 2 часть значения мкА
+#define REG_RESULT_COS_PHI2				210	// Значение косинус фи канала 2 x1000
+
+#define REG_RESULT_I3_mA				211	// Результат по току канала 3 часть значения мА
+#define REG_RESULT_I3_uA				212	// Результат по току канала 3 часть значения мкА
+#define REG_RESULT_I3_ACT_mA			213	// Результат по активному току канала 3 часть значения мА
+#define REG_RESULT_I3_ACT_uA			214	// Результат по активному току канала 3 часть значения мкА
+#define REG_RESULT_COS_PHI3				215	// Значение косинус фи канала 3 x1000
+
+#define REG_RESULT_I4_mA				216	// Результат по току канала 4 часть значения мА
+#define REG_RESULT_I4_uA				217	// Результат по току канала 4 часть значения мкА
+#define REG_RESULT_I4_ACT_mA			218	// Результат по активному току канала 4 часть значения мА
+#define REG_RESULT_I4_ACT_uA			219	// Результат по активному току канала 4 часть значения мкА
+#define REG_RESULT_COS_PHI4				220	// Значение косинус фи канала 4 x1000
+
+#define REG_FAILED_CURRENT_CHANNEL		221	// Номер отказавшего канала тока
+
 // -----------------------------
 #define REG_FWINFO_SLAVE_NID			256	// Device CAN slave node ID
 #define REG_FWINFO_MASTER_NID			257	// Device CAN master node ID (if presented)
@@ -175,23 +196,32 @@
 #define EP_PWM							5	// Мгновенное значение ШИМ
 #define EP_VOLTAGE_ERROR				6	// Ошибка регулирования напряжения, В
 
-#define EP_VRMS_SETPOINT				5	// Уставка по действующему значению напряжения
-#define EP_VRMS_CTRL_SETPOINT			6	// Регулируемая уставка по действующему значению напряжения
-#define EP_VRMS_RESULT					7	// Результат по действующему значению напряжения
-#define EP_IRMS_RESULT					8	// Результат по действующему значению напряжения
+#define FEP_VOLTAGE						1	// Мгновенное напряэжение, В
+#define FEP_CURRENT1					2	// Мгновенный ток канала 1, мА
+#define FEP_CURRENT2					3	// Мгновенный ток канала 2, мА
+#define FEP_CURRENT3					4	// Мгновенный ток канала 3, мА
+#define FEP_CURRENT4					5	// Мгновенный ток канала 4, мА
+
+#define FEP_VOLTAGE_RMS					6	// Действующее напряэжение, В
+#define FEP_CURRENT_RMS1				7	// Действующий ток канала 1, мА
+#define FEP_CURRENT_RMS2				8	// Действующий ток канала 2, мА
+#define FEP_CURRENT_RMS3				9	// Действующий ток канала 3, мА
+#define FEP_CURRENT_RMS4				10	// Действующий ток канала 4, мА
 
 //  Fault and disable codes
-#define DF_NONE							0
+#define DF_NONE							0	// No fault
+// 1 - режим совместимости
+#define DF_PRIMARY_VOLTAGE				2	// Primary voltage failure
 
 // Problem
-#define PROBLEM_NONE					0
-#define PROBLEM_OUTPUT_SATURATION		1	// Напряжение регулирования достигло предела
-#define PROBLEM_FOLLOWING_ERROR			2	// Ошибка регулирования
+#define PROBLEM_NONE					0	// No problem
+#define PROBLEM_STOP					1	// Stop by user command or safety signal
+#define PROBLEM_FOLLOWING_ERROR			2	// Following error
+#define PROBLEM_PWM_SATURATION			3	// PWM reached upper limit
 
 //  Warning
-#define WARNING_NONE					0
-#define WARNING_RMS_OVER_CURRENT		1	// Превышение установленного действующего значения тока
-#define WARNING_INSTANT_OVERCURRENT		2	// Превышение мгновенного значения тока
+#define WARNING_NONE					0	// No warning
+#define WARNING_CURR_RANGE_SAT			1	// Current exceeds upper limit level
 
 //  User Errors
 #define ERR_NONE						0
