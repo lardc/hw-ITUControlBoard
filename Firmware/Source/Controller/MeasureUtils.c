@@ -27,6 +27,10 @@ typedef struct __Coefficients
 } Coefficients;
 
 // Variables
+static uint16_t ScopeDivCounter, ScopeDivErrCounter;
+static uint16_t ScopeDivCounterMax, ScopeDivErrCounterMax;
+static uint16_t ScopeValuesCounter, ErrorValuesCounter;
+
 uint16_t DMAVoltage[ADC_DMA_VOLTAGE_SAMPLES];
 uint16_t DMACurrent12[ADC_DMA_CURRENT_SAMPLES];
 uint16_t DMACurrent34[ADC_DMA_CURRENT_SAMPLES];
@@ -140,5 +144,31 @@ void MU_ResultFineTuning(pSampleData Result)
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleFineTuningX(&CurrentCoeff[i], Result->Current[i]);
 	Result->Voltage = MU_SingleFineTuningX(&VoltageCoeff, Result->Voltage);
+}
+//------------------------------------------
+
+void MU_StartScope()
+{
+	ScopeDivCounterMax = ScopeDivErrCounterMax = DataTable[REG_SCOPE_RATE];
+	ScopeDivCounter = ScopeDivErrCounter = 0;
+
+	ScopeValuesCounter = MEMBUF_ScopeValues_Counter;
+	ErrorValuesCounter = MEMBUF_ErrorValues_Counter;
+}
+//------------------------------------------
+
+void MU_LogScopeError(float Value)
+{
+	if(ScopeDivErrCounter++ >= ScopeDivErrCounterMax)
+	{
+		ScopeDivErrCounter = 0;
+		MEMBUF_Values_Err[ErrorValuesCounter++] = (uint16_t)((int16_t)Value);
+
+		if(MEMBUF_ErrorValues_Counter < VALUES_x_SIZE)
+			MEMBUF_ErrorValues_Counter = ErrorValuesCounter;
+
+		if(ErrorValuesCounter >= VALUES_x_SIZE)
+			ErrorValuesCounter = 0;
+	}
 }
 //------------------------------------------

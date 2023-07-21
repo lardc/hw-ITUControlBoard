@@ -24,4 +24,7 @@ void MU_CacheVariables(CurrentChannel SelectedChannel);
 void MU_GetSampleData(pSampleData Result);
 void MU_ResultFineTuning(pSampleData Result);
 
+void MU_StartScope();
+void MU_LogScopeError(float Value);
+
 #endif // __MEASURE_UTILS_H
