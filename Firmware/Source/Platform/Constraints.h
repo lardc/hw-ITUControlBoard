@@ -11,17 +11,17 @@
 
 #define TICK_LIMIT_MAX			4095
 
-#define K_MIN					1e-4
+#define K_MIN					1e-4f
 #define K_MAX					1000
 #define K_DEF					1
 
-#define P2_MAX					1e-3
+#define P2_MAX					1e-3f
 #define P2_MIN					(-P2_MAX)
 
-#define P1_MIN					0.1
+#define P1_MIN					0.1f
 #define P1_MAX					2
 
-#define P0_MAX					1e3
+#define P0_MAX					1e3f
 #define P0_MIN					(-P0_MAX)
 
 #define RES_MIN					1
@@ -34,7 +34,7 @@
 #define START_VOLTAGE_DEF		500
 
 // in kV/sec
-#define VOLTAGE_RATE_MIN		0.1
+#define VOLTAGE_RATE_MIN		0.1f
 #define VOLTAGE_RATE_MAX		3
 #define VOLTAGE_RATE_DEF		1
 

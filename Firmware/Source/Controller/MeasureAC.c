@@ -64,7 +64,7 @@ void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyVa
 void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi);
 Int16S MAC_CalcPWMFromVoltageAmplitude();
 void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi);
-//float MAC_PeriodController();
+float MAC_PeriodController();
 void MAC_ControlCycle();
 bool MAC_InitStartState();
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi);
@@ -432,7 +432,7 @@ Int16S MAC_PWMTrim(Int16S pwm)
 	// Порог обрезки нижних значений
 	else if((ControlVrms + PeriodCorrection) > PWM_TRIM_CTRL_VOLTAGE)
 	{
-		if(abs(pwm) < (MinSafePWM / 2))
+		if(abs(pwm) < (MinSafePWM >> 1))
 			return 0;
 		else if(abs(pwm) < MinSafePWM)
 			return MinSafePWM * SIGN(pwm);
@@ -444,35 +444,32 @@ Int16S MAC_PWMTrim(Int16S pwm)
 }
 // ----------------------------------------
 
-#ifdef BOOT_FROM_FLASH
-#pragma CODE_SECTION(MAC_CalcPWMFromVoltageAmplitude, "ramfuncs");
-#endif
 Int16S MAC_CalcPWMFromVoltageAmplitude()
 {
 	// Расчёт мгновенного значения напряжения
 	// Отбрасывание целых периодов счётчика времени
-	Int32U TrimmedCounter = TimeCounter % SINE_PERIOD_PULSES;
-	float SinValue = _IQsinPU(_FPtoIQ2(TrimmedCounter, SINE_PERIOD_PULSES));
-	ActualInstantVoltageSet = _IQmpy(_IQmpy(SQROOT2, ControlVrms + PeriodCorrection), SinValue);
+	float TrimmedCounter = (float)(TimeCounter % SINE_PERIOD_PULSES);
+	float SinValue = sinf(SINE_PERIOD_PULSES_MPY_DIV * TrimmedCounter);
+	ActualInstantVoltageSet = SQROOT2 * (ControlVrms + PeriodCorrection) * SinValue;
 
 	// Пересчёт в ШИМ
-	Int16S pwm = _IQint(_IQmpy(ActualInstantVoltageSet, TransAndPWMCoeff));
+	Int16S pwm = (Int16S)(ActualInstantVoltageSet * TransAndPWMCoeff);
 	return MAC_PWMTrim(pwm);
 }
 // ----------------------------------------
 
 bool MAC_InitStartState()
 {
-	TargetVrms = _IQI(DataTable[REG_TEST_VOLTAGE]);
-	LimitIrms = _IQI(DataTable[REG_LIMIT_CURRENT_mA]) + _FPtoIQ2(DataTable[REG_LIMIT_CURRENT_uA], 1000);
+	TargetVrms = DataTable[REG_TEST_VOLTAGE];
+	LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
 	
-	ControlVrms = _IQI(DataTable[REG_START_VOLTAGE]);
+	ControlVrms = DataTable[REG_START_VOLTAGE];
 
-	Kp = _FPtoIQ2(DataTable[REG_KP], 100);
-	Ki = _FPtoIQ2(DataTable[REG_KI], 100);
+	Kp = DataTable[REG_KP] * 0.01f;
+	Ki = DataTable[REG_KI] * 0.01f;
 	
-	VrmsRateStep = _FPtoIQ2(DataTable[REG_VOLTAGE_RATE] * 100, PWM_SINE_FREQ);
-	PlateCounterTop = CONTROL_FREQUENCY * DataTable[REG_TEST_TIME];
+	VrmsRateStep = DataTable[REG_VOLTAGE_RATE] * 1000 / PWM_SINE_FREQ;
+	PlateCounterTop = PWM_FREQUENCY * (Int16U)DataTable[REG_TEST_TIME];
 	
 	TransAndPWMCoeff = _FPtoIQ2(ZW_PWM_DUTY_BASE, DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
 	MinSafePWM = (PWM_FREQUENCY / 1000L) * PWM_MIN_TH * ZW_PWM_DUTY_BASE / 1000000L;
