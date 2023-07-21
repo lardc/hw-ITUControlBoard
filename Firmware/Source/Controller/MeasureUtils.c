@@ -186,10 +186,10 @@ void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int1
 		MEMBUF_Values_I4[ScopeValuesCounter] = Instant->Current[3];
 
 		MEMBUF_Values_Vrms[ScopeValuesCounter] = RMS->Voltage;
-		MEMBUF_Values_I1rms[ScopeValuesCounter] = RMS->Current[0];
-		MEMBUF_Values_I2rms[ScopeValuesCounter] = RMS->Current[1];
-		MEMBUF_Values_I3rms[ScopeValuesCounter] = RMS->Current[2];
-		MEMBUF_Values_I4rms[ScopeValuesCounter] = RMS->Current[3];
+		MEMBUF_Values_Irms1[ScopeValuesCounter] = RMS->Current[0];
+		MEMBUF_Values_Irms2[ScopeValuesCounter] = RMS->Current[1];
+		MEMBUF_Values_Irms3[ScopeValuesCounter] = RMS->Current[2];
+		MEMBUF_Values_Irms4[ScopeValuesCounter] = RMS->Current[3];
 
 		MEMBUF_Values_CosPhi1[ScopeValuesCounter] = (int16_t)(CosPhi[0] * 1000);
 		MEMBUF_Values_CosPhi2[ScopeValuesCounter] = (int16_t)(CosPhi[1] * 1000);
