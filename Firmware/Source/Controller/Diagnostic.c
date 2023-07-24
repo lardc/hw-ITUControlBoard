@@ -7,6 +7,7 @@
 #include "LowLevel.h"
 #include "Delay.h"
 #include "Controller.h"
+#include "MeasureUtils.h"
 
 // Functions
 bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
@@ -38,11 +39,12 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			break;
 
 		case ACT_DBG_READ_SAFETY:
-			DataTable[REG_DBG_GENERAL] = LL_IsSafetyOK() ? 1 : 0;
+			DataTable[REG_SAFETY_IS_OK] = LL_IsSafetyOK() ? 1 : 0;
 			break;
 
 		case ACT_DBG_READ_INPUT_V_ADC:
 			DataTable[REG_DBG_GENERAL] = LL_ReadInputVoltageADC();
+			DataTable[REG_PRIMARY_SIDE_VOLTAGE] = MU_GetPrimarySideVoltage();
 			break;
 
 		case ACT_DBG_SET_DAC_OUTPUT:
