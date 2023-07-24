@@ -66,19 +66,14 @@ void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float Mu
 Int16S MAC_CalcPWMFromVoltageAmplitude();
 void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi);
 float MAC_PeriodController(float ActualVrms);
-bool MAC_InitStartState();
+void MAC_InitStartState();
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi);
 
 // Functions
-bool MAC_StartProcess()
+void MAC_StartProcess()
 {
-	if(MAC_InitStartState())
-	{
-		T1PWM_Start();
-		return true;
-	}
-	else
-		return false;
+	MAC_InitStartState();
+	T1PWM_Start();
 }
 // ----------------------------------------
 
@@ -458,7 +453,7 @@ Int16S MAC_CalcPWMFromVoltageAmplitude()
 }
 // ----------------------------------------
 
-bool MAC_InitStartState()
+void MAC_InitStartState()
 {
 	TargetVrms = DataTable[REG_TEST_VOLTAGE];
 	LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
@@ -513,19 +508,15 @@ bool MAC_InitStartState()
 		MU_CacheVariables(CC_R1);
 		LL_SelectCurrentChannel(CC_R1);
 	}
-	else if(LimitIrms <= DataTable[REG_I_RANGE_HIGH])
+	else
 	{
 		Irange = DataTable[REG_I_RANGE_HIGH];
 		MU_CacheVariables(CC_R0);
 		LL_SelectCurrentChannel(CC_R0);
 	}
-	else
-		return false;
-
 	Isat_level = Irange * SQROOT2;
 
 	// Задержка на переключение оптопар
 	DELAY_US(5000);
-	return true;
 }
 // ----------------------------------------

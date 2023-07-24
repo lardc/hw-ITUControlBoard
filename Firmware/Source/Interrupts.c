@@ -8,6 +8,7 @@
 #include "Global.h"
 #include "Board.h"
 #include "ZwDMA.h"
+#include "MeasureAC.h"
 
 // Variables
 static volatile bool VoltageSamplingDone = false;
@@ -93,12 +94,7 @@ void INT_CheckCompleteCondition()
 	{
 		VoltageSamplingDone = CurrentSamplingDone = false;
 		LL_DMAReload();
-
-		/*
-		uint16_t Problem;
-		if(PWM_SinRegulation(&Problem))
-			CONTROL_ProcessPWMStop(Problem);
-		*/
+		MAC_ControlCycle();
 	}
 }
 //-----------------------------------------

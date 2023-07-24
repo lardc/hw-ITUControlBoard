@@ -10,6 +10,9 @@
 #include "SysConfig.h"
 #include "Diagnostic.h"
 #include "BCCIxParams.h"
+#include "MeasureAC.h"
+#include "MeasureUtils.h"
+#include <math.h>
 
 // Types
 typedef enum __DeviceState
@@ -21,27 +24,14 @@ typedef enum __DeviceState
 	DS_InProcess = 4
 } DeviceState;
 
-typedef enum __DeviceSubState
-{
-	DSS_None = 0,
-
-	DSS_RequestStart = 1,
-	DSS_ConnectRelays = 2,
-
-	DSS_RequestStop = 3,
-	DSS_RequestDisconnect = 4,
-	DSS_DisconnectRelays = 5,
-	DSS_WaitDisconnection = 6
-} DeviceSubState;
-
 typedef void (*FUNC_AsyncDelegate)();
 
 // Variables
 //
-DeviceSubState CONTROL_SubState = DSS_None;
 volatile DeviceState CONTROL_State = DS_None;
 static Boolean CycleActive = false;
 volatile Int64U CONTROL_TimeCounter = 0;
+static float LastBatteryVoltage = 0;
 
 // Storage
 //
@@ -70,11 +60,12 @@ Int16U MEMBUF_ScopeValues_Counter = 0, MEMBUF_ErrorValues_Counter = 0;
 // Forward functions
 //
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError);
-void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
+void CONTROL_SetDeviceState(DeviceState NewState);
+void CONTROL_SwitchStateToFault(Int16U FaultReason);
 void CONTROL_UpdateWatchDog();
 void CONTROL_ResetResults();
 void CONTROL_ResetToDefaultState();
-void CONTROL_ProcessSubStates();
+void CONTROL_StartSequence();
 
 // Functions
 //
@@ -128,9 +119,6 @@ void CONTROL_Init()
 
 void CONTROL_ResetResults()
 {
-	DataTable[REG_FAULT_REASON] = DF_NONE;
-	DataTable[REG_DISABLE_REASON] = DF_NONE;
-	DataTable[REG_WARNING] = WARNING_NONE;
 	DataTable[REG_PROBLEM] = PROBLEM_NONE;
 	DataTable[REG_FINISHED] = OPRESULT_NONE;
 	DataTable[REG_VOLTAGE_READY] = 0;
@@ -148,8 +136,12 @@ void CONTROL_ResetResults()
 
 void CONTROL_ResetToDefaultState()
 {
+	DataTable[REG_FAULT_REASON] = DF_NONE;
+	DataTable[REG_DISABLE_REASON] = DF_NONE;
+	DataTable[REG_WARNING] = WARNING_NONE;
+
 	CONTROL_ResetResults();
-	CONTROL_SetDeviceState(DS_None, DSS_None);
+	CONTROL_SetDeviceState(DS_None);
 }
 //------------------------------------------
 
@@ -158,7 +150,13 @@ void CONTROL_Idle()
 	DEVPROFILE_ProcessRequests();
 	CONTROL_UpdateWatchDog();
 
-	CONTROL_ProcessSubStates();
+	// Оцифровка напряжения батареи
+	static Int64U LastBatterySample = 0;
+	if(CONTROL_TimeCounter > LastBatterySample + PRIMARY_SAMPLE_DELAY)
+	{
+		LastBatterySample = CONTROL_TimeCounter;
+		DataTable[REG_PRIMARY_SIDE_VOLTAGE] = LastBatteryVoltage = MU_GetPrimarySideVoltage();
+	}
 }
 //------------------------------------------
 
@@ -169,56 +167,54 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	switch (ActionID)
 	{
 		case ACT_ENABLE_POWER:
-			{
-				if(CONTROL_State == DS_None)
-					CONTROL_SetDeviceState(DS_Ready, DSS_None);
-				else if(CONTROL_State != DS_Ready)
-					*pUserError = ERR_OPERATION_BLOCKED;
-			}
+			if(CONTROL_State == DS_None)
+				CONTROL_SetDeviceState(DS_Ready);
+			else if(CONTROL_State != DS_Ready)
+				*pUserError = ERR_DEVICE_NOT_READY;
 			break;
-			
+
 		case ACT_DISABLE_POWER:
+			if(CONTROL_State == DS_InProcess)
+				*pUserError = ERR_OPERATION_BLOCKED;
+			else
+				CONTROL_SetDeviceState(DS_None);
+			break;
+
+		case ACT_START:
+			if(CONTROL_State == DS_InProcess)
+				*pUserError = ERR_OPERATION_BLOCKED;
+			else if(CONTROL_State == DS_Ready)
 			{
-				if(CONTROL_State == DS_Ready)
-					CONTROL_ResetToDefaultState();
-				else if(CONTROL_State != DS_None)
-					*pUserError = ERR_DEVICE_NOT_READY;
+				// Проверка попадания тока в доступный диапазон
+				float LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
+				if(LimitIrms > DataTable[REG_I_RANGE_HIGH])
+					*pUserError = ERR_BAD_CONFIG;
+				else
+				{
+					CONTROL_ResetResults();
+					CONTROL_StartSequence();
+				}
 			}
+			else
+				*pUserError = ERR_DEVICE_NOT_READY;
+			break;
+
+		case ACT_STOP:
+			if(CONTROL_State == DS_InProcess)
+				MAC_RequestStop(PBR_RequestSoftStop);
 			break;
 
 		case ACT_FAULT_CLEAR:
-			{
-				if(CONTROL_State == DS_Fault)
-					CONTROL_ResetToDefaultState();
-			}
+			if(CONTROL_State == DS_Fault)
+				CONTROL_ResetToDefaultState();
 			break;
 
 		case ACT_WARNING_CLEAR:
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
-		case ACT_START:
-			break;
-
-		case ACT_STOP:
-			{
-				if(CONTROL_State == DS_InProcess)
-				{
-					// Стандартная процедура завершения
-					if(CONTROL_SubState == DSS_None)
-						CONTROL_SetDeviceState(DS_InProcess, DSS_RequestStop);
-					// Прерывание запуска
-					else if(CONTROL_SubState == DSS_ConnectRelays)
-					{
-						CONTROL_SetDeviceState(DS_Ready, DSS_None);
-					}
-				}
-			}
-			break;
-
 		default:
 			return DIAG_HandleDiagnosticAction(ActionID, pUserError);
-			
 	}
 	return true;
 }
@@ -226,22 +222,36 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 
 void CONTROL_RequestStop()
 {
+	CONTROL_SetDeviceState(DS_Ready);
 }
 //------------------------------------------
 
-void CONTROL_ProcessSubStates()
+void CONTROL_StartSequence()
 {
+	// Проверка напряжения первичной стороны
+	float RelativeVoltage = fabsf(LastBatteryVoltage - DataTable[REG_PRIM_VOLTAGE]) / DataTable[REG_PRIM_VOLTAGE];
+	if(fabsf(1.0f - RelativeVoltage) <= DataTable[REG_PRIM_VOLTAGE_MAX_ERR] / 100)
+	{
+		MU_StartScope();
+		MAC_StartProcess();
+		CONTROL_SetDeviceState(DS_InProcess);
+	}
+	else
+		CONTROL_SwitchStateToFault(DF_PRIMARY_VOLTAGE);
 }
 //------------------------------------------
 
-void CONTROL_ProcessPWMStop(uint16_t Problem)
-{
-}
-//------------------------------------------
-
-void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
+void CONTROL_SetDeviceState(DeviceState NewState)
 {
 	DataTable[REG_DEV_STATE] = CONTROL_State = NewState;
+	LL_EnableExtLed(NewState == DS_InProcess);
+}
+//------------------------------------------
+
+void CONTROL_SwitchStateToFault(Int16U FaultReason)
+{
+	DataTable[REG_FAULT_REASON] = FaultReason;
+	CONTROL_SetDeviceState(DS_Fault);
 }
 //------------------------------------------
 
