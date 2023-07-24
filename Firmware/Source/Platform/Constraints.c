@@ -106,7 +106,8 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 74
 		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 75
 
-		{0, 0, 0},																// 76
+		{FAN_ON_MIN, FAN_ON_MAX, FAN_ON_DEF},									// 76
+
 		{0, 0, 0},																// 77
 		{0, 0, 0},																// 78
 		{0, 0, 0},																// 79

@@ -71,6 +71,11 @@
 #define ILIM_MAX				1000
 #define ILIM_DEF				10
 
+// in sec
+#define FAN_ON_MIN				0
+#define FAN_ON_MAX				600
+#define FAN_ON_DEF				30
+
 // in Vrms
 #define TARGET_VOLTAGE_MIN		1000
 #define TARGET_VOLTAGE_MAX		10500

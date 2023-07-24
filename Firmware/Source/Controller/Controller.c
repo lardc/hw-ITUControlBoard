@@ -159,10 +159,20 @@ void CONTROL_Idle()
 	}
 
 	// Обработка контура безопасности
-	Boolean SafetyOK = LL_IsSafetyOK();
+	bool SafetyOK = LL_IsSafetyOK();
 	DataTable[REG_SAFETY_IS_OK] = SafetyOK ? 1 : 0;
 	if(!DataTable[REG_IGNORE_HW_SAFETY] && !SafetyOK && CONTROL_State == DS_InProcess)
 		MAC_RequestStop(PBR_RequestSoftStop);
+
+	// Обработка вентилятора
+	static Int64U FanTurnOff = 0;
+	if(CONTROL_State == DS_InProcess)
+	{
+		LL_EnableFan(true);
+		FanTurnOff = CONTROL_TimeCounter + (Int64U)(DataTable[REG_FAN_ON_TIME] * 1000);
+	}
+	else if(CONTROL_TimeCounter > FanTurnOff)
+		LL_EnableFan(false);
 }
 //------------------------------------------
 
