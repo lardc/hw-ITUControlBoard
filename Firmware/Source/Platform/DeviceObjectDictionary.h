@@ -133,7 +133,6 @@
 #define REG_TEST_TIME					132	// Длительность формирования полки (в сек)
 #define REG_SCOPE_RATE					133	// Делитель логгирования данных
 
-#define REG_DBG_SRAM					170	// Write saw-shape debug sequence to SRAM
 #define REG_DBG_MUTE_PWM				171	// Mute PWM output
 
 #define REG_DBG							190	// Отладочный регистр

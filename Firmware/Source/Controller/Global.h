@@ -7,7 +7,7 @@
 #define EP_COUNT				6			// Количество массивов для чтения
 #define FEP_COUNT				10			// Количество массивов float для чтения
 #define ENABLE_LOCKING			FALSE		// Защита NV регистров паролем
-#define VALUES_x_SIZE			1000		// Размер буфера Endpoint
+#define VALUES_x_SIZE			500			// Размер буфера Endpoint
 
 // Временные параметры
 #define TIME_LED_BLINK			500			// Мигание светодиодом (в мс)

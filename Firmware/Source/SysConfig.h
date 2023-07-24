@@ -21,6 +21,7 @@
 // PWM
 #define PWM_FREQUENCY					20000		// в Гц
 #define PWM_PERIOD						(1000000 / PWM_FREQUENCY)	// в мкс
+#define PWM_MIN_TH						1000		// Минимальная длительность импульса, нс
 #define PWM_SINE_FREQ					50			// Частота формируемой синусоиды (в Гц)
 #define PWM_MAX_SAT						0.99f
 // ---------------------------------------------

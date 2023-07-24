@@ -224,6 +224,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 }
 //------------------------------------------
 
+void CONTROL_RequestStop()
+{
+}
+//------------------------------------------
+
 void CONTROL_ProcessSubStates()
 {
 }

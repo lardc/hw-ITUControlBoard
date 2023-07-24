@@ -33,5 +33,6 @@ extern Int16U MEMBUF_ScopeValues_Counter, MEMBUF_ErrorValues_Counter;
 // Functions
 void CONTROL_Init();
 void CONTROL_Idle();
+void CONTROL_RequestStop();
 
 #endif // __CONTROLLER_H

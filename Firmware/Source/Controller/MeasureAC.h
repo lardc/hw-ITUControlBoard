@@ -23,5 +23,6 @@ typedef enum __ProcessBreakReason
 // Functions
 bool MAC_StartProcess();
 void MAC_RequestStop(ProcessBreakReason Reason);
+void MAC_ControlCycle();
 
 #endif // __MEASURE_AC_H

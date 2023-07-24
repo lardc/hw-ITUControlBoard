@@ -14,6 +14,7 @@
 #include "Global.h"
 #include "MeasureUtils.h"
 #include "Timer1PWM.h"
+#include "Delay.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -46,13 +47,13 @@ static Int16U RingBufferPointer;
 static bool RingBufferFull;
 
 static Int16S MinSafePWM, PWM, PWMReduceRate;
-static Int16U RawZeroVoltage, RawZeroCurrent, FECounter, FECounterMax;
+static Int16U FECounter, FECounterMax;
 static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
 static float LimitIrms, Isat_level, Irange;
 static float PWMLimit;
 static Int32U TimeCounter, PlateCounterTop, FailedCurrentChannel;
-static bool DbgMutePWM, DbgSRAM, StopByActiveCurrent, RequireSoftStop;
+static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop;
 
 static ProcessState State;
 static ProcessBreakReason BreakReason;
@@ -64,8 +65,7 @@ void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyVa
 void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi);
 Int16S MAC_CalcPWMFromVoltageAmplitude();
 void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi);
-float MAC_PeriodController();
-void MAC_ControlCycle();
+float MAC_PeriodController(float ActualVrms);
 bool MAC_InitStartState();
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi);
 
@@ -471,26 +471,18 @@ bool MAC_InitStartState()
 	VrmsRateStep = DataTable[REG_VOLTAGE_RATE] * 1000 / PWM_SINE_FREQ;
 	PlateCounterTop = PWM_FREQUENCY * (Int16U)DataTable[REG_TEST_TIME];
 	
-	TransAndPWMCoeff = _FPtoIQ2(ZW_PWM_DUTY_BASE, DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
-	MinSafePWM = (PWM_FREQUENCY / 1000L) * PWM_MIN_TH * ZW_PWM_DUTY_BASE / 1000000L;
-	RawZeroVoltage = DataTable[REG_RAW_ZERO_SVOLTAGE];
-	RawZeroCurrent = DataTable[REG_RAW_ZERO_SCURRENT];
+	TransAndPWMCoeff = T1PWM_GetPWMBase() / (DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
+	MinSafePWM = (PWM_FREQUENCY / 1000L) * PWM_MIN_TH * T1PWM_GetPWMBase() / 1000000L;
 	StopByActiveCurrent = DataTable[REG_STOP_BY_ACTIVE_CURRENT];
 	
-	FEAbsolute = _IQI(DataTable[REG_FE_ABSOLUTE]);
-	FERelative = _FPtoIQ2(DataTable[REG_FE_RELATIVE], 100);
+	FEAbsolute = DataTable[REG_FE_ABSOLUTE];
+	FERelative = DataTable[REG_FE_RELATIVE] / 100;
 	FECounterMax = DataTable[REG_FE_COUNTER_MAX];
 
 	PWMLimit = T1PWM_GetPWMBase() * PWM_MAX_SAT;
 
-	DbgSRAM = DataTable[REG_DBG_SRAM] ? true : false;
 	DbgMutePWM = DataTable[REG_DBG_MUTE_PWM] ? true : false;
 	
-	MU_InitCoeffVoltage();
-	MU_InitCoeffCurrent1();
-	MU_InitCoeffCurrent2();
-	MU_InitCoeffCurrent3();
-
 	// Сброс переменных
 	PWM = 0;
 	FECounter = TimeCounter = 0;
@@ -499,51 +491,41 @@ bool MAC_InitStartState()
 	RequireSoftStop = false;
 
 	// Очистка кольцевого буфера
-	Int16U i;
-	for(i = 0; i < SINE_PERIOD_PULSES; i++)
+	for(int i = 0; i < SINE_PERIOD_PULSES; i++)
 		RingBuffer[i] = PowerDataZero;
-
+	RealSquareSum = PowerDataZero;
 	RingBufferFull = false;
 	RingBufferPointer = 0;
-
-	RealSquareSum = PowerDataZero;
-
 
 	State = PS_Ramp;
 	BreakReason = PBR_None;
 
-	// Конфигурация оцифровщика
-	bool res;
-	if(LimitIrms <= I_RANGE_LOW)
+	// Конфигурация модуля измерений
+	if(LimitIrms <= DataTable[REG_I_RANGE_LOW])
 	{
-		Irange = I_RANGE_LOW;
-		MAC_CurrentCalc = MU_CalcCurrent3;
-		res = SS_SelectShunt(SwitchConfig_I3);
+		Irange = DataTable[REG_I_RANGE_LOW];
+		MU_CacheVariables(CC_R2);
+		LL_SelectCurrentChannel(CC_R2);
 	}
-	else if(LimitIrms <= I_RANGE_MID)
+	else if(LimitIrms <= DataTable[REG_I_RANGE_MID])
 	{
-		Irange = I_RANGE_MID;
-		MAC_CurrentCalc = MU_CalcCurrent2;
-		res = SS_SelectShunt(SwitchConfig_I2);
+		Irange = DataTable[REG_I_RANGE_MID];
+		MU_CacheVariables(CC_R1);
+		LL_SelectCurrentChannel(CC_R1);
+	}
+	else if(LimitIrms <= DataTable[REG_I_RANGE_HIGH])
+	{
+		Irange = DataTable[REG_I_RANGE_HIGH];
+		MU_CacheVariables(CC_R0);
+		LL_SelectCurrentChannel(CC_R0);
 	}
 	else
-	{
-		Irange = I_RANGE_HIGH;
-		MAC_CurrentCalc = MU_CalcCurrent1;
-		res = SS_SelectShunt(SwitchConfig_I1);
-	}
-	Isat_level = _IQmpy(Irange, SQROOT2);
+		return false;
 
-	if(res)
-	{
-		// Первый запрос данных
-		res = SS_GetData(true);
+	Isat_level = Irange * SQROOT2;
 
-		// Задержка на переключение оптопар
-		if(res)
-			DELAY_US(5000);
-	}
-
-	return res;
+	// Задержка на переключение оптопар
+	DELAY_US(5000);
+	return true;
 }
 // ----------------------------------------
