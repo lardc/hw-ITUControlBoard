@@ -89,7 +89,7 @@
 #define VOLTAGE_PLATE_TIME_DEF	1
 
 #define SCOPE_RATE_MAX			100		// skip 99 point, write 1
-#define SCOPE_RATE_DEF			0		// write all
+#define SCOPE_RATE_DEF			4
 
 // Types
 typedef struct __TableItemConstraint
