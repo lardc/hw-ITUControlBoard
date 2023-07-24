@@ -97,14 +97,15 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 
 		{TRANS_COEFF_MIN, TRANS_COEFF_MAX, TRANS_COEFF_DEF},					// 68
 		{PRIM_VOLTAGE_MIN, PRIM_VOLTAGE_MAX, PRIM_VOLTAGE_DEF},					// 69
-		{NO, YES, NO},															// 70
-
+		{PRIM_VOLTAGE_DIFF_MIN, PRIM_VOLTAGE_DIFF_MAX, PRIM_VOLTAGE_DIFF_DEF},	// 70
 		{NO, YES, NO},															// 71
 
-		{0, 0, 0},																// 72
-		{0, 0, 0},																// 73
-		{0, 0, 0},																// 74
-		{0, 0, 0},																// 75
+		{NO, YES, NO},															// 72
+
+		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 73
+		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 74
+		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 75
+
 		{0, 0, 0},																// 76
 		{0, 0, 0},																// 77
 		{0, 0, 0},																// 78
@@ -157,12 +158,14 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																// 125
 		{0, 0, 0},																// 126
 		{0, 0, 0},																// 127
-		{0, INT16U_MAX, 0},														// 128
-		{0, INT16U_MAX, 0},														// 129
-		{0, INT16U_MAX, 0},														// 130
-		{0, INT16U_MAX, 0},														// 131
-		{0, 0, 0},																// 132
-		{0, 0, 0},																// 133
+
+		{TARGET_VOLTAGE_MIN, TARGET_VOLTAGE_MAX, TARGET_VOLTAGE_DEF},			// 128
+		{0, ILIMIT_mA_MAX, ILIMIT_mA_DEF},										// 129
+		{0, ILIMIT_uA_MAX, 0},													// 130
+		{NO, YES, NO},															// 131
+		{VOLTAGE_PLATE_TIME_MIN, VOLTAGE_PLATE_TIME_MAX, VOLTAGE_PLATE_TIME_DEF},	// 132
+		{0, SCOPE_RATE_MAX, SCOPE_RATE_DEF},									// 133
+
 		{0, 0, 0},																// 134
 		{0, 0, 0},																// 135
 		{0, 0, 0},																// 136
@@ -179,7 +182,7 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																// 147
 		{0, 0, 0},																// 148
 		{0, 0, 0},																// 149
-		{0, INT16U_MAX, 0},														// 150
+		{0, 0, 0},																// 150
 		{0, 0, 0},																// 151
 		{0, 0, 0},																// 152
 		{0, 0, 0},																// 153
@@ -200,11 +203,11 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																// 168
 		{0, 0, 0},																// 169
 		{0, 0, 0},																// 170
-		{0, 0, 0},																// 171
+		{NO, YES, NO},															// 171
 		{0, 0, 0},																// 172
 		{0, 0, 0},																// 173
 		{0, 0, 0},																// 174
-		{0, 0, 0},																// 175
+		{0, INT16U_MAX, 0},														// 175
 		{0, 0, 0},																// 176
 		{0, 0, 0},																// 177
 		{0, 0, 0},																// 178

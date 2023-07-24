@@ -117,13 +117,14 @@
 
 #define REG_TRANSFORMER_COFF			68	// Коэффициент трансформации
 #define REG_PRIM_VOLTAGE				69	// Напряжение первичной сторны (в В)
-#define REG_PRIM_IGNORE_CHECK			70	// Не проверять уровень напряжения первичной стороны (в В)
+#define REG_PRIM_VOLTAGE_MAX_ERR		70	// Максимальное отклонение первичного напряжения (в %)
+#define REG_PRIM_IGNORE_CHECK			71	// Не проверять уровень напряжения первичной стороны (в В)
 
-#define REG_IGNORE_HW_SAFETY			71	// Не обрабатывать аппаратный сигнал контура безопасности
+#define REG_IGNORE_HW_SAFETY			72	// Не обрабатывать аппаратный сигнал контура безопасности
 
-#define REG_I_RANGE_LOW					72	// Предел нижнего диапазона тока, мА
-#define REG_I_RANGE_MID					73	// Предел среднего диапазона тока, мА
-#define REG_I_RANGE_HIGH				74	// Предел верхнего диапазона тока, мА
+#define REG_I_RANGE_LOW					73	// Предел нижнего диапазона тока, мА
+#define REG_I_RANGE_MID					74	// Предел среднего диапазона тока, мА
+#define REG_I_RANGE_HIGH				75	// Предел верхнего диапазона тока, мА
 
 // Несохраняемы регистры чтения-записи
 #define REG_TEST_VOLTAGE				128	// Действующее напряжение уставки (в В)
@@ -135,7 +136,7 @@
 
 #define REG_DBG_MUTE_PWM				171	// Mute PWM output
 
-#define REG_DBG							190	// Отладочный регистр
+#define REG_DBG_GENERAL					175	// Отладочный регистр общего назначения
 
 // Регистры только чтение
 #define REG_DEV_STATE					192	// Регистр состояния

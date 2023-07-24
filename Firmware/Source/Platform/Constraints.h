@@ -61,10 +61,35 @@
 #define PRIM_VOLTAGE_MAX		200
 #define PRIM_VOLTAGE_DEF		150
 
+// in %
+#define PRIM_VOLTAGE_DIFF_MIN	0
+#define PRIM_VOLTAGE_DIFF_MAX	30
+#define PRIM_VOLTAGE_DIFF_DEF	2
+
+// in mA
+#define ILIM_MIN				0.1f
+#define ILIM_MAX				1000
+#define ILIM_DEF				10
+
 // in Vrms
 #define TARGET_VOLTAGE_MIN		1000
 #define TARGET_VOLTAGE_MAX		10500
 #define TARGET_VOLTAGE_DEF		1000
+
+// in Irms mA part
+#define ILIMIT_mA_MAX			100
+#define ILIMIT_mA_DEF			10
+
+// in Irms uA part
+#define ILIMIT_uA_MAX			999
+
+// in sec
+#define VOLTAGE_PLATE_TIME_MIN	1
+#define VOLTAGE_PLATE_TIME_MAX	60
+#define VOLTAGE_PLATE_TIME_DEF	1
+
+#define SCOPE_RATE_MAX			100		// skip 99 point, write 1
+#define SCOPE_RATE_DEF			0		// write all
 
 // Types
 typedef struct __TableItemConstraint
