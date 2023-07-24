@@ -157,6 +157,12 @@ void CONTROL_Idle()
 		LastBatterySample = CONTROL_TimeCounter;
 		DataTable[REG_PRIMARY_SIDE_VOLTAGE] = LastBatteryVoltage = MU_GetPrimarySideVoltage();
 	}
+
+	// Обработка контура безопасности
+	Boolean SafetyOK = LL_IsSafetyOK();
+	DataTable[REG_SAFETY_IS_OK] = SafetyOK ? 1 : 0;
+	if(!DataTable[REG_IGNORE_HW_SAFETY] && !SafetyOK && CONTROL_State == DS_InProcess)
+		MAC_RequestStop(PBR_RequestSoftStop);
 }
 //------------------------------------------
 

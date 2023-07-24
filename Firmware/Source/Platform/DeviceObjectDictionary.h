@@ -177,6 +177,7 @@
 #define REG_FAILED_CURRENT_CHANNEL		221	// Номер отказавшего канала тока
 
 #define REG_PRIMARY_SIDE_VOLTAGE		230	// Напряжение первичной стороны, В
+#define REG_SAFETY_IS_OK				231	// Состояние контура безопасности
 
 // -----------------------------
 #define REG_FWINFO_SLAVE_NID			256	// Device CAN slave node ID
