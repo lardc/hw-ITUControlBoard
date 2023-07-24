@@ -28,4 +28,6 @@ void MU_StartScope();
 void MU_LogScopeError(float Value);
 void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM);
 
+float MU_GetPrimarySideVoltage();
+
 #endif // __MEASURE_UTILS_H

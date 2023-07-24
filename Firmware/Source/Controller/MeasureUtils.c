@@ -207,3 +207,9 @@ void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int1
 	}
 }
 //------------------------------------------
+
+float MU_GetPrimarySideVoltage()
+{
+	return LL_ReadInputVoltageADC() * RESOLUTION_MPY_DIV * ADC_REF_VOLTAGE * DataTable[REG_CAP_COEFF];
+}
+//------------------------------------------
