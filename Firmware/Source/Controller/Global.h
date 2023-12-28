@@ -2,7 +2,7 @@
 #define __GLOBAL_H
 
 // Параметры интерфейса
-#define	SCCI_TIMEOUT_TICKS			1000	// Таймаут интерфейса SCCI (в мс)
+#define	SCCI_TIMEOUT_TICKS			2000	// Таймаут интерфейса SCCI (в мс)
 #define EP_WRITE_COUNT				0		// Количество массивов для записи
 #define EP_COUNT					6		// Количество массивов для чтения
 #define FEP_COUNT					10		// Количество массивов float для чтения

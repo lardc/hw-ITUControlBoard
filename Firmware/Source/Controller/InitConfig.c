@@ -34,6 +34,9 @@ void INITCFG_ConfigIO()
 	GPIO_InitPushPullOutput(GPIO_LED);
 	GPIO_InitPushPullOutput(GPIO_FAN);
 	
+	// Входы цифровые
+	GPIO_InitInput(GPIO_SAFETY, Pull_Up);
+
 	// Входы аналоговые
 	GPIO_InitAnalog(GPIO_MEASURE_VOUT);
 	GPIO_InitAnalog(GPIO_MEASURE_I1);
@@ -41,7 +44,7 @@ void INITCFG_ConfigIO()
 	GPIO_InitAnalog(GPIO_MEASURE_I3);
 	GPIO_InitAnalog(GPIO_MEASURE_I4);
 	GPIO_InitAnalog(GPIO_MEASURE_VIN);
-	
+
 	// Альтернативные функции
 	GPIO_InitAltFunction(GPIO_ALT_CAN_RX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_CAN_TX, AltFn_9);
@@ -183,11 +186,9 @@ void INITCFG_DAC()
 {
 	DAC_ClkEnable(DAC1);
 	DAC_Reset(DAC1);
-
 	DAC_EnableCh2(DAC1);
 	DAC_BufferCh2(DAC1, false);
-	DAC_TriggerConfigCh2(DAC1, TRIG2_SOFTWARE, TRIG2_ENABLE);
-
+	DAC_TriggerConfigCh2(DAC1, TRIG2_SOFTWARE, TRIG2_DISABLE);
 	DAC_SetValueCh2(DAC1, 0);
 }
 //------------------------------------------------

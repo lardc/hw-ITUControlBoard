@@ -28,13 +28,13 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 
 		case ACT_DBG_PULSE_EXT_LED:
 			LL_EnableExtLed(true);
-			DELAY_US(1000000);
+			DELAY_MS(500);
 			LL_EnableExtLed(false);
 			break;
 
 		case ACT_DBG_PULSE_FAN:
 			LL_EnableFan(true);
-			DELAY_US(1000000);
+			DELAY_MS(500);
 			LL_EnableFan(false);
 			break;
 
