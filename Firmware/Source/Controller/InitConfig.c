@@ -188,7 +188,7 @@ void INITCFG_DAC()
 	DAC_Reset(DAC1);
 	DAC_EnableCh2(DAC1);
 	DAC_BufferCh2(DAC1, false);
-	DAC_TriggerConfigCh2(DAC1, TRIG2_SOFTWARE, TRIG2_DISABLE);
+	DAC_TriggerConfigCh2(DAC1, TRIG2_SOFTWARE, 0);
 	DAC_SetValueCh2(DAC1, 0);
 }
 //------------------------------------------------
