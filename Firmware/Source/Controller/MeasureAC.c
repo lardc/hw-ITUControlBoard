@@ -23,7 +23,6 @@
 #define SINE_PERIOD_PULSES			(PWM_FREQUENCY / PWM_SINE_FREQ)
 #define SINE_PERIOD_PULSES_MPY_DIV	(1.0f / SINE_PERIOD_PULSES)
 #define SIGN(a)						(((a) >= 0) ? 1 : -1)
-#define PWM_PERIOD                  (1000000ul / PWM_FREQUENCY)
 
 // Types
 typedef enum __ProcessState
@@ -391,25 +390,27 @@ void MAC_ControlCycle()
 
 	PrevState = State;
 	TimeCounter++;
-    if (State == PS_Plate)
-        PlateCounter++;
+	if(State == PS_Plate)
+		PlateCounter++;
 
-    // Запись текущих показаний времени
-    // Делитель 1 000 000 для результата в секундах
-    DataTable[REG_INFO_TOTAL_TIME] = TimeCounter * PWM_PERIOD / 1000000ul; 
-    DataTable[REG_INFO_PLATE_TIME] = PlateCounter * PWM_PERIOD / 1000000ul; 
+	// Запись текущих показаний времени
+	// Делитель 1 000 000 для результата в секундах
+	DataTable[REG_INFO_TOTAL_TIME] = TimeCounter * PWM_PERIOD / 1000000ul;
+	DataTable[REG_INFO_PLATE_TIME] = PlateCounter * PWM_PERIOD / 1000000ul;
 
-    // Запись показаний напряжения и 4 каналов тока
-    if (State == PS_Ramp || State == PS_Plate) {
-        // Запись значения напряжения
-        DataTable[REG_INFO_V] = SavedRMS.Voltage;
-        
-        // Запись значений тока
-        const Int16U RegStep = REG_INFO_I2_mA - REG_INFO_I1_mA, BaseReg = REG_INFO_I1_mA;
-        for (int i = 0; i < CURRENT_CHANNELS; i++) {
-            DataTable[BaseReg + i * RegStep] = SavedRMS.Current[i];
-        }
-    }
+	// Запись показаний напряжения и 4 каналов тока
+	if(State == PS_Ramp || State == PS_Plate)
+	{
+		// Запись значения напряжения
+		DataTable[REG_INFO_V] = SavedRMS.Voltage;
+
+		// Запись значений тока
+		const Int16U RegStep = REG_INFO_I2_mA - REG_INFO_I1_mA, BaseReg = REG_INFO_I1_mA;
+		for(int i = 0; i < CURRENT_CHANNELS; i++)
+		{
+			DataTable[BaseReg + i * RegStep] = SavedRMS.Current[i];
+		}
+	}
 }
 // ----------------------------------------
 
