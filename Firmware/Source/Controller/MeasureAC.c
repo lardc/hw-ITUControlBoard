@@ -52,7 +52,7 @@ static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
 static float LimitIrms, Isat_level, Irange;
 static float PWMLimit;
-static Int32U TimeCounter, PlateCounterTop, FailedCurrentChannel;
+static Int32U TimeCounter, PlateCounter, PlateCounterTop, FailedCurrentChannel;
 static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop;
 
 static ProcessState State;
@@ -390,6 +390,27 @@ void MAC_ControlCycle()
 
 	PrevState = State;
 	TimeCounter++;
+	if(State == PS_Plate)
+		PlateCounter++;
+
+	// Запись текущих показаний времени
+	// Делитель 1 000 000 для результата в секундах
+	DataTable[REG_INFO_TOTAL_TIME] = TimeCounter * PWM_PERIOD / 1000000ul;
+	DataTable[REG_INFO_PLATE_TIME] = PlateCounter * PWM_PERIOD / 1000000ul;
+
+	// Запись показаний напряжения и 4 каналов тока
+	if(State == PS_Ramp || State == PS_Plate)
+	{
+		// Запись значения напряжения
+		DataTable[REG_INFO_V] = SavedRMS.Voltage;
+
+		// Запись значений тока
+		const Int16U RegStep = REG_INFO_I2_mA - REG_INFO_I1_mA, BaseReg = REG_INFO_I1_mA;
+		for(int i = 0; i < CURRENT_CHANNELS; i++)
+		{
+			DataTable[BaseReg + i * RegStep] = SavedRMS.Current[i];
+		}
+	}
 }
 // ----------------------------------------
 
@@ -480,7 +501,7 @@ void MAC_InitStartState()
 	
 	// Сброс переменных
 	PWM = 0;
-	FECounter = TimeCounter = 0;
+	FECounter = TimeCounter = PlateCounter = 0;
 	Ki_err = PeriodCorrection = 0;
 	ActualInstantVoltageSet = 0;
 	RequireSoftStop = false;

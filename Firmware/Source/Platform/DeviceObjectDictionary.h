@@ -178,6 +178,15 @@
 
 #define REG_FAILED_CURRENT_CHANNEL		221	// Номер отказавшего канала тока
 
+#define REG_INFO_TOTAL_TIME				222	// Время с момента начала измерения (в сек)
+#define REG_INFO_PLATE_TIME				223	// Время с момента выхода на задание (в сек)
+
+#define REG_INFO_V						224	// Информация о напряжении
+#define REG_INFO_I1_mA					225	// Информация о токе, канал 1 (в mA)
+#define REG_INFO_I2_mA					226	// Информация о токе, канал 2 (в mA)
+#define REG_INFO_I3_mA					227	// Информация о токе, канал 3 (в mA)
+#define REG_INFO_I4_mA					228	// Информация о токе, канал 4 (в mA)
+
 #define REG_PRIMARY_SIDE_VOLTAGE		230	// Напряжение первичной стороны, В
 #define REG_SAFETY_IS_OK				231	// Состояние контура безопасности
 
