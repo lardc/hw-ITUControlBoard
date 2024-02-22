@@ -246,7 +246,7 @@ void CONTROL_StartSequence()
 {
 	// Проверка напряжения первичной стороны
 	float RelativeVoltage = fabsf(LastBatteryVoltage - DataTable[REG_PRIM_VOLTAGE]) / DataTable[REG_PRIM_VOLTAGE];
-	if(fabsf(1.0f - RelativeVoltage) <= DataTable[REG_PRIM_VOLTAGE_MAX_ERR] / 100)
+	if(RelativeVoltage <= DataTable[REG_PRIM_VOLTAGE_MAX_ERR] / 100)
 	{
 		MU_StartScope();
 		MAC_StartProcess();
