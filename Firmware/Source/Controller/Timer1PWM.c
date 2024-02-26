@@ -6,6 +6,7 @@
 #include "ZwRCC.h"
 #include "math.h"
 #include "LowLevel.h"
+#include "stdlib.h"
 
 // Variables
 static uint32_t PWMBase = 0;
@@ -57,13 +58,13 @@ void T1PWM_SetDutyCycle(int16_t Value)
 	// Выбор полярности формирователя
 	if(Value > 0)
 	{
-		TIM1->CCR1 = Value;
+		TIM1->CCR1 = abs(Value);
 		TIM1->CCR2 = 0;
 	}
 	else if(Value < 0)
 	{
 		TIM1->CCR1 = 0;
-		TIM1->CCR2 = Value;
+		TIM1->CCR2 = abs(Value);
 	}
 	else
 		TIM1->CCR1 = TIM1->CCR2 = 0;

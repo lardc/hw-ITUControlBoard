@@ -465,7 +465,7 @@ Int16S MAC_CalcPWMFromVoltageAmplitude()
 	// Расчёт мгновенного значения напряжения
 	// Отбрасывание целых периодов счётчика времени
 	float TrimmedCounter = (float)(TimeCounter % SINE_PERIOD_PULSES);
-	float SinValue = sinf(SINE_PERIOD_PULSES_MPY_DIV * TrimmedCounter);
+	float SinValue = sinf(2 * M_PI * SINE_PERIOD_PULSES_MPY_DIV * TrimmedCounter);
 	ActualInstantVoltageSet = SQROOT2 * (ControlVrms + PeriodCorrection) * SinValue;
 
 	// Пересчёт в ШИМ
