@@ -19,6 +19,8 @@
 #define ADC_DMA_VOLTAGE_SAMPLES	ADC_DMA_SAMPLES
 #define ADC_DMA_CURRENT_SAMPLES	(ADC_DMA_SAMPLES * 2)
 #define PRIMARY_SAMPLE_DELAY		200		// Период оцифровки первичного напряжения, мс
+// Параметры смещения
+#define DAC_VALUE					2048	// Параметры смещения оцифровки
 
 // Параметры остановки / снижения ШИМ
 #define PWM_MIN_REDUCE_RATE			50		// Минимальная скорость снижения ШИМ в тиках
