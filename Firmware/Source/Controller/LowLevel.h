@@ -20,6 +20,7 @@ void LL_EnableExtLed(bool NewState);
 void LL_EnableFan(bool NewState);
 bool LL_IsSafetyOK();
 uint16_t LL_ReadInputVoltageADC();
+uint16_t LL_ReadOutputVoltageADC();
 void LL_SetDACOutput(uint16_t Value);
 
 #endif //__LOWLEVEL_H
