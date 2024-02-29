@@ -159,7 +159,7 @@ void INITCFG_ADC()
 	ADC_DMAEnable(ADC1, true);
 	ADC_DMAEnable(ADC2, true);
 
-	// Настройка АЦП3 для быстройо цифровки и АЦП4 для медленной
+	// Настройка АЦП3 для быстрой оцифровки и АЦП4 для медленной
 	RCC_ADC_Clk_EN(ADC_34_ClkEN);
 
 	ADC_Calibration(ADC3);
