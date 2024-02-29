@@ -49,8 +49,8 @@
 #define ADC1_CURRENT_CHANNEL3			2				// АЦП1 номер канала тока 3
 #define ADC2_CURRENT_CHANNEL2			1				// АЦП2 номер канала тока 2
 #define ADC2_CURRENT_CHANNEL1			3				// АЦП2 номер канала тока 1
-#define ADC3_OUT_VOLTAGE_CHANNEL		1				// АЦП3 номер канала выходного напряжения
-#define ADC4_IN_VOLTAGE_CHANNEL			3				// АЦП4 номер канала входного напряжения
+#define ADC3_OUT_VOLTAGE_CHANNEL		12				// АЦП3 номер канала выходного напряжения
+#define ADC4_IN_VOLTAGE_CHANNEL			3				// АЦП4 номер канала входного напряжения (Первичной стороны)
 // ---------------------------------------------
 
 #endif // __SYSCONFIG_H
