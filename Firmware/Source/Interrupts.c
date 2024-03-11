@@ -61,6 +61,7 @@ void TIM1_UP_TIM16_IRQHandler()
 	if(TIM_StatusCheck(TIM1))
 	{
 		ADC_SamplingStart(ADC1);
+		ADC_SamplingStart(ADC3);
 		TIM_StatusClear(TIM1);
 	}
 }
@@ -84,6 +85,17 @@ void DMA2_Channel1_IRQHandler()
 		CurrentSamplingDone = true;
 		INT_CheckCompleteCondition();
 		DMA_TransferCompleteReset(DMA2, DMA_IFCR_CGIF1);
+	}
+}
+//-----------------------------------------
+
+void DMA2_Channel5_IRQHandler()
+{
+	if(DMA_IsTransferComplete(DMA2, DMA_ISR_TCIF5))
+	{
+		VoltageSamplingDone = true;
+		INT_CheckCompleteCondition();
+		DMA_TransferCompleteReset(DMA2, DMA_IFCR_CGIF5);
 	}
 }
 //-----------------------------------------
