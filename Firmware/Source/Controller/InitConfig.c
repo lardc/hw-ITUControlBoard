@@ -163,16 +163,12 @@ void INITCFG_ADC()
 	RCC_ADC_Clk_EN(ADC_34_ClkEN);
 
 	ADC_Calibration(ADC3);
-	ADC_Calibration(ADC4);
 
 	ADC_Enable(ADC3);
-	ADC_Enable(ADC4);
 
 	ADC_SoftTrigConfig(ADC3);
-	ADC_SoftTrigConfig(ADC4);
 
 	ADC_ChannelSeqReset(ADC3);
-	ADC_ChannelSeqReset(ADC4);
 
 	for (uint8_t i = 1; i <= ADC_DMA_VOLTAGE_SAMPLES; i++)
 		ADC_ChannelSet_Sequence(ADC3, ADC3_OUT_VOLTAGE_CHANNEL, i);
