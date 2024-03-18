@@ -218,6 +218,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_STOP:
 			if(CONTROL_State == DS_InProcess)
 				MAC_RequestStop(PBR_RequestSoftStop);
+			CONTROL_RequestStop();
 			break;
 
 		case ACT_FAULT_CLEAR:
