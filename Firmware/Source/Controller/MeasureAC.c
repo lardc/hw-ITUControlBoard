@@ -220,6 +220,7 @@ void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
 }
 // ----------------------------------------
 
+__attribute__ ((section (".mb1text")))
 void MAC_ControlCycle()
 {
 	int i;
