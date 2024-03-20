@@ -88,6 +88,7 @@ void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
 }
 //------------------------------------------
 
+__attribute__ ((section (".ramfunc")))
 float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 {
 	// Смещение
@@ -107,6 +108,7 @@ float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 }
 //------------------------------------------
 
+__attribute__ ((section (".ramfunc")))
 float MU_SingleFineTuningX(Coefficients *coeff, float Value)
 {
 	// Тонкая корректировка
@@ -114,6 +116,7 @@ float MU_SingleFineTuningX(Coefficients *coeff, float Value)
 }
 //------------------------------------------
 
+__attribute__ ((section (".ramfunc")))
 void MU_GetSampleData(pSampleData Result)
 {
 	int i;
@@ -139,6 +142,7 @@ void MU_GetSampleData(pSampleData Result)
 }
 //------------------------------------------
 
+__attribute__ ((section (".ramfunc")))
 void MU_ResultFineTuning(pSampleData Result)
 {
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
