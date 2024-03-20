@@ -244,7 +244,7 @@ void MAC_ControlCycle()
 			float CompareCurrent = StopByActiveCurrent ? fabsf(CosPhi[i]) * RMS.Current[i] : RMS.Current[i];
 			if(CompareCurrent >= LimitIrms)
 			{
-				SavedCosPhi[i] = fabs(RMS.Voltage) > SC_VOLTAGE_THR ? CosPhi[i] : 1.0f;
+				SavedCosPhi[i] = fabsf(RMS.Voltage) > SC_VOLTAGE_THR ? CosPhi[i] : 1.0f;
 				MAC_RequestStop(PBR_CurrentLimit);
 				FailedCurrentChannel = i;
 				break;
