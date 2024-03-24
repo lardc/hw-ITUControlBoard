@@ -1,6 +1,8 @@
 ﻿#ifndef __GLOBAL_H
 #define __GLOBAL_H
 
+#define CCMRAM						__attribute__((section(".ccmram")))
+
 // Параметры интерфейса
 #define	SCCI_TIMEOUT_TICKS			2000	// Таймаут интерфейса SCCI (в мс)
 #define EP_WRITE_COUNT				0		// Количество массивов для записи

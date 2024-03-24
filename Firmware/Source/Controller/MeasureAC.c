@@ -119,8 +119,7 @@ float MAC_PeriodController(float ActualVrms)
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_PowerDataAdd(pPowerData BaseValue, pPowerData AddValue, bool Sum)
+CCMRAM void MAC_PowerDataAdd(pPowerData BaseValue, pPowerData AddValue, bool Sum)
 {
 	float Sign = Sum ? 1 : -1;
 
@@ -133,8 +132,7 @@ void MAC_PowerDataAdd(pPowerData BaseValue, pPowerData AddValue, bool Sum)
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_CalculateRingBufferValue(pPowerData Result, pSampleData Sample)
+CCMRAM void MAC_CalculateRingBufferValue(pPowerData Result, pSampleData Sample)
 {
 	Result->Sample.Voltage = Sample->Voltage * Sample->Voltage;
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
@@ -145,8 +143,7 @@ void MAC_CalculateRingBufferValue(pPowerData Result, pSampleData Sample)
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyValue)
+CCMRAM void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyValue)
 {
 	Result->Sample.Voltage = sqrtf(InputValue->Sample.Voltage * MultiplyValue);
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
@@ -157,8 +154,7 @@ void MAC_CalculateRMS(pPowerData Result, pPowerData InputValue, float MultiplyVa
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi)
+CCMRAM void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float MultiplyValue, float *CosPhi)
 {
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 	{
@@ -181,8 +177,7 @@ void MAC_CalculateCosinusPhi(pPowerData SquareSum, pPowerData PowerRMS, float Mu
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
+CCMRAM void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
 {
 	// Вычитание из суммы затираемого значения
 	if(RingBufferPointer != 0 || RingBufferFull)
@@ -225,8 +220,7 @@ void MAC_HandleVI(pSampleData Instant, pSampleData RMS, float *CosPhi)
 }
 // ----------------------------------------
 
-__attribute__ ((section (".ramfunc")))
-void MAC_ControlCycle()
+CCMRAM void MAC_ControlCycle()
 {
 	int i;
 	static ProcessState PrevState = PS_None;

@@ -12,10 +12,8 @@
 #include "BCCIxParams.h"
 #include "MeasureAC.h"
 #include "MeasureUtils.h"
+#include "Global.h"
 #include <math.h>
-
-// Definitions
-#define CCMRAM_VAR		__attribute__ ((section (".ccmram")))
 
 // Types
 typedef enum __DeviceState
@@ -38,11 +36,11 @@ static float LastBatteryVoltage = 0;
 
 // Storage
 //
-CCMRAM_VAR float MEMBUF_Values_V[VALUES_x_SIZE];
-CCMRAM_VAR float MEMBUF_Values_I1[VALUES_x_SIZE];
-CCMRAM_VAR float MEMBUF_Values_I2[VALUES_x_SIZE];
-CCMRAM_VAR float MEMBUF_Values_I3[VALUES_x_SIZE];
-CCMRAM_VAR float MEMBUF_Values_I4[VALUES_x_SIZE];
+float MEMBUF_Values_V[VALUES_x_SIZE];
+float MEMBUF_Values_I1[VALUES_x_SIZE];
+float MEMBUF_Values_I2[VALUES_x_SIZE];
+float MEMBUF_Values_I3[VALUES_x_SIZE];
+float MEMBUF_Values_I4[VALUES_x_SIZE];
 
 float MEMBUF_Values_Vrms[VALUES_x_SIZE];
 float MEMBUF_Values_Irms1[VALUES_x_SIZE];
@@ -50,13 +48,13 @@ float MEMBUF_Values_Irms2[VALUES_x_SIZE];
 float MEMBUF_Values_Irms3[VALUES_x_SIZE];
 float MEMBUF_Values_Irms4[VALUES_x_SIZE];
 
-CCMRAM_VAR Int16S MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
-CCMRAM_VAR Int16S MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
-CCMRAM_VAR Int16S MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
-CCMRAM_VAR Int16S MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
 
-CCMRAM_VAR Int16S MEMBUF_Values_PWM[VALUES_x_SIZE];
-CCMRAM_VAR Int16S MEMBUF_Values_Err[VALUES_x_SIZE];
+Int16S MEMBUF_Values_PWM[VALUES_x_SIZE];
+Int16S MEMBUF_Values_Err[VALUES_x_SIZE];
 
 Int16U MEMBUF_ScopeValues_Counter = 0, MEMBUF_ErrorValues_Counter = 0;
 
