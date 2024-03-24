@@ -134,18 +134,6 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   } >RAM AT> FLASH
   
-  /* Section for RAM functions */
-  .ramfunc : 
-  {
-    . = ALIGN(4);
-    _sramfunc = .;     /* create a global symbol at data start */
-    *(.ramfunc)        /* .data sections */
-    *(.ramfunc*)       /* .data* sections */
-
-    . = ALIGN(4);
-    _eramfunc = .;     /* define a global symbol at data end */
-  } >RAM AT> FLASH
-  
   _siccmram = LOADADDR(.ccmram);
 
   /* CCM-RAM section 
