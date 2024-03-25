@@ -88,7 +88,7 @@ void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
 }
 //------------------------------------------
 
-float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
+CCMRAM float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 {
 	// Смещение
 	Value -= coeff->RawShift;
@@ -107,14 +107,14 @@ float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 }
 //------------------------------------------
 
-float MU_SingleFineTuningX(Coefficients *coeff, float Value)
+CCMRAM float MU_SingleFineTuningX(Coefficients *coeff, float Value)
 {
 	// Тонкая корректировка
 	return Value * Value * coeff->P2 + Value * coeff->P1 + coeff->P0;
 }
 //------------------------------------------
 
-void MU_GetSampleData(pSampleData Result)
+CCMRAM void MU_GetSampleData(pSampleData Result)
 {
 	int i;
 	float Voltage = 0;
@@ -139,7 +139,7 @@ void MU_GetSampleData(pSampleData Result)
 }
 //------------------------------------------
 
-void MU_ResultFineTuning(pSampleData Result)
+CCMRAM void MU_ResultFineTuning(pSampleData Result)
 {
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleFineTuningX(&CurrentCoeff[i], Result->Current[i]);
@@ -173,7 +173,7 @@ void MU_LogScopeError(float Value)
 }
 //------------------------------------------
 
-void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM)
+CCMRAM void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM)
 {
 	if(ScopeDivCounter++ >= ScopeDivCounterMax)
 	{
