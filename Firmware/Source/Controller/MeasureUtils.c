@@ -129,10 +129,10 @@ CCMRAM void MU_GetSampleData(pSampleData Result)
 	// Обработка данных тока
 	for(i = 0; i < ADC_DMA_CURRENT_SAMPLES; i += 2)
 	{
-		Current[0] += DMACurrent12[i];
-		Current[1] += DMACurrent12[i + 1];
-		Current[2] += DMACurrent34[i];
-		Current[3] += DMACurrent34[i + 1];
+		Current[1] += DMACurrent12[i];
+		Current[0] += DMACurrent12[i + 1];
+		Current[3] += DMACurrent34[i];
+		Current[2] += DMACurrent34[i + 1];
 	}
 	for(i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
