@@ -33,7 +33,7 @@ static uint16_t ScopeValuesCounter, ErrorValuesCounter;
 
 uint16_t DMAVoltage[ADC_DMA_VOLTAGE_SAMPLES];
 uint16_t DMACurrent12[ADC_DMA_CURRENT_SAMPLES];
-uint16_t DMACurrent34[ADC_DMA_CURRENT_SAMPLES];
+uint16_t DMACurrent34[ADC_DMA_CURRENT_SAMPLES_PLUS1];
 static Coefficients VoltageCoeff, CurrentCoeff[CURRENT_CHANNELS];
 static float ShuntResistanceDiv;
 

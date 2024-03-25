@@ -10,14 +10,6 @@
 #include "ZwDMA.h"
 #include "MeasureAC.h"
 
-// Variables
-static volatile bool VoltageSamplingDone = false;
-static volatile bool Current12SamplingDone = false;
-static volatile bool Current34SamplingDone = false;
-
-// Forward functions
-void INT_CheckCompleteCondition();
-
 // Functions
 void USART1_IRQHandler()
 {
@@ -57,55 +49,11 @@ void TIM7_IRQHandler()
 }
 //-----------------------------------------
 
-void TIM1_UP_TIM16_IRQHandler()
-{
-	if(TIM_StatusCheck(TIM1))
-	{
-		ADC_SamplingStart(ADC1);
-		ADC_SamplingStart(ADC3);
-		TIM_StatusClear(TIM1);
-	}
-}
-//-----------------------------------------
-
 void DMA1_Channel1_IRQHandler()
 {
 	if(DMA_IsTransferComplete(DMA1, DMA_ISR_TCIF1))
 	{
-		Current12SamplingDone = true;
-		INT_CheckCompleteCondition();
 		DMA_TransferCompleteReset(DMA1, DMA_IFCR_CGIF1);
-	}
-}
-//-----------------------------------------
-
-void DMA2_Channel1_IRQHandler()
-{
-	if(DMA_IsTransferComplete(DMA2, DMA_ISR_TCIF1))
-	{
-		Current34SamplingDone = true;
-		INT_CheckCompleteCondition();
-		DMA_TransferCompleteReset(DMA2, DMA_IFCR_CGIF1);
-	}
-}
-//-----------------------------------------
-
-void DMA2_Channel5_IRQHandler()
-{
-	if(DMA_IsTransferComplete(DMA2, DMA_ISR_TCIF5))
-	{
-		VoltageSamplingDone = true;
-		INT_CheckCompleteCondition();
-		DMA_TransferCompleteReset(DMA2, DMA_IFCR_CGIF5);
-	}
-}
-//-----------------------------------------
-
-void INT_CheckCompleteCondition()
-{
-	if(VoltageSamplingDone && Current12SamplingDone && Current34SamplingDone)
-	{
-		VoltageSamplingDone = Current12SamplingDone = Current34SamplingDone = false;
 		LL_DMAReload();
 		MAC_ControlCycle();
 	}

@@ -46,9 +46,6 @@ void T1PWM_Init(uint32_t SystemClock, uint32_t Period)
 	TIM1->EGR |= TIM_EGR_UG;
 	while(!(TIM1->SR & TIM_SR_UIF));
 	TIM1->SR &= ~TIM_SR_UIF;
-
-	// Разрешение прерывания
-	TIM_Interupt(TIM1, 0, true);
 }
 //------------------------------------------------
 

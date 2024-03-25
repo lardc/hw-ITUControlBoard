@@ -20,6 +20,7 @@
 #define ADC_DMA_SAMPLES 			4		// Количество сэмплов одного канала АЦП для ДМА
 #define ADC_DMA_VOLTAGE_SAMPLES		ADC_DMA_SAMPLES
 #define ADC_DMA_CURRENT_SAMPLES		(ADC_DMA_SAMPLES * 2)
+#define ADC_DMA_CURRENT_SAMPLES_PLUS1	(ADC_DMA_CURRENT_SAMPLES + 1)	// Число сэмплов + 1 для корректного отлова прерывания
 #define PRIMARY_SAMPLE_DELAY		200		// Период оцифровки первичного напряжения, мс
 // Параметры смещения
 #define DAC_VALUE					2048	// Параметры смещения оцифровки
