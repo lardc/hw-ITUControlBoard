@@ -93,6 +93,7 @@ void INITCFG_PWM()
 	T1PWM_Init(SYSCLK, PWM_PERIOD);
 
 	// Разрешаем запуск АЦП
+	TIM_DMA(TIM1, DMAEN);
 	TIM_MasterMode(TIM1, MMS_UPDATE);
 }
 //------------------------------------------------

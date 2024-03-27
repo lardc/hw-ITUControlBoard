@@ -74,6 +74,9 @@ void MAC_StartProcess()
 {
 	MAC_InitStartState();
 	T1PWM_Start();
+	ADC_SamplingStart(ADC1);
+	ADC_SamplingStart(ADC2);
+	ADC_SamplingStart(ADC3);
 }
 // ----------------------------------------
 
@@ -411,6 +414,9 @@ CCMRAM void MAC_ControlCycle()
 			DataTable[BaseReg + i * RegStep] = SavedRMS.Current[i];
 		}
 	}
+	ADC_SamplingStart(ADC1);
+	ADC_SamplingStart(ADC2);
+	ADC_SamplingStart(ADC3);
 }
 // ----------------------------------------
 
