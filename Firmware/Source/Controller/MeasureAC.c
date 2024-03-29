@@ -410,28 +410,20 @@ CCMRAM void MAC_ControlCycle()
 }
 // ----------------------------------------
 
+
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi)
 {
-	const Int16U RegStep = REG_RESULT_I2_mA - REG_RESULT_I1_mA, BaseReg = REG_RESULT_I1_mA;
+	const Int16U RegStep = REG_RESULT_I2 - REG_RESULT_I1, BaseReg = REG_RESULT_I1;
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 	{
 		// RMS
-		float mApart;
-		float uApart = modff(RMS->Current[i], &mApart) * 1000;
-
-		DataTable[BaseReg + i * RegStep] = (Int16U)mApart;
-		DataTable[BaseReg + i * RegStep + 1] = (Int16U)uApart;
-
+		DataTable[BaseReg + i * RegStep] = RMS->Current[i];
 		// Активная составляющая
-		uApart = modff(RMS->Current[i] * fabsf(CosPhi[i]), &mApart) * 1000;
-
-		DataTable[BaseReg + i * RegStep + 2] = (Int16U)mApart;
-		DataTable[BaseReg + i * RegStep + 3] = (Int16U)uApart;
-
+		DataTable[BaseReg + i * RegStep + 1] = (RMS->Current[i] * fabsf(CosPhi[i]));
 		// Косинус фи
-		DataTable[BaseReg + i * RegStep + 4] = (Int16S)(CosPhi[i] * 1000);
+		DataTable[BaseReg + i * RegStep + 2] = CosPhi[i];
 	}
-	DataTable[REG_RESULT_V] = (Int16U)RMS->Voltage;
+	DataTable[REG_RESULT_V] = RMS->Voltage;
 }
 // ----------------------------------------
 
@@ -473,7 +465,7 @@ Int16S MAC_CalcPWMFromVoltageAmplitude()
 void MAC_InitStartState()
 {
 	TargetVrms = DataTable[REG_TEST_VOLTAGE];
-	LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
+	LimitIrms = DataTable[REG_LIMIT_CURRENT];
 	
 	ControlVrms = DataTable[REG_START_VOLTAGE];
 

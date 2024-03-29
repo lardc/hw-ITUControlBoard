@@ -203,7 +203,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			else if(CONTROL_State == DS_Ready)
 			{
 				// Проверка попадания тока в доступный диапазон
-				float LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
+				float LimitIrms = DataTable[REG_LIMIT_CURRENT];
 				if(LimitIrms > DataTable[REG_I_RANGE_HIGH])
 					*pUserError = ERR_BAD_CONFIG;
 

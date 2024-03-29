@@ -131,8 +131,7 @@
 
 // Несохраняемы регистры чтения-записи
 #define REG_TEST_VOLTAGE				128	// Действующее напряжение уставки (в В)
-#define REG_LIMIT_CURRENT_mA			129	// Предельный ток (часть мА)
-#define REG_LIMIT_CURRENT_uA			130	// Предельный ток (часть мкА)
+#define REG_LIMIT_CURRENT				129	// Предельный ток (мА)
 #define REG_STOP_BY_ACTIVE_CURRENT		131	// Режим остановки по активной составляющей тока
 #define REG_TEST_TIME					132	// Длительность формирования полки (в сек)
 #define REG_SCOPE_RATE					133	// Делитель логгирования данных
@@ -153,29 +152,21 @@
 
 #define REG_RESULT_V					200	// Результат по напряжению, В
 
-#define REG_RESULT_I1_mA				201	// Результат по току канала 1 часть значения мА
-#define REG_RESULT_I1_uA				202	// Результат по току канала 1 часть значения мкА
-#define REG_RESULT_I1_ACT_mA			203	// Результат по активному току канала 1 часть значения мА
-#define REG_RESULT_I1_ACT_uA			204	// Результат по активному току канала 1 часть значения мкА
-#define REG_RESULT_COS_PHI1				205	// Значение косинус фи канала 1 x1000
+#define REG_RESULT_I1					201	// Результат по току канала 1 мА
+#define REG_RESULT_I1_ACT				202	// Результат по активному току канала 1 мА
+#define REG_RESULT_COS_PHI1				203	// Значение косинус фи канала 1
 
-#define REG_RESULT_I2_mA				206	// Результат по току канала 2 часть значения мА
-#define REG_RESULT_I2_uA				207	// Результат по току канала 2 часть значения мкА
-#define REG_RESULT_I2_ACT_mA			208	// Результат по активному току канала 2 часть значения мА
-#define REG_RESULT_I2_ACT_uA			209	// Результат по активному току канала 2 часть значения мкА
-#define REG_RESULT_COS_PHI2				210	// Значение косинус фи канала 2 x1000
+#define REG_RESULT_I2					204	// Результат по току канала 2 мА
+#define REG_RESULT_I2_ACT				205	// Результат по активному току канала 2 мА
+#define REG_RESULT_COS_PHI2				206	// Значение косинус фи канала 2
 
-#define REG_RESULT_I3_mA				211	// Результат по току канала 3 часть значения мА
-#define REG_RESULT_I3_uA				212	// Результат по току канала 3 часть значения мкА
-#define REG_RESULT_I3_ACT_mA			213	// Результат по активному току канала 3 часть значения мА
-#define REG_RESULT_I3_ACT_uA			214	// Результат по активному току канала 3 часть значения мкА
-#define REG_RESULT_COS_PHI3				215	// Значение косинус фи канала 3 x1000
+#define REG_RESULT_I3					207	// Результат по току канала 3 мА
+#define REG_RESULT_I3_ACT				208	// Результат по активному току канала 3 мА
+#define REG_RESULT_COS_PHI3				209	// Значение косинус фи канала 3
 
-#define REG_RESULT_I4_mA				216	// Результат по току канала 4 часть значения мА
-#define REG_RESULT_I4_uA				217	// Результат по току канала 4 часть значения мкА
-#define REG_RESULT_I4_ACT_mA			218	// Результат по активному току канала 4 часть значения мА
-#define REG_RESULT_I4_ACT_uA			219	// Результат по активному току канала 4 часть значения мкА
-#define REG_RESULT_COS_PHI4				220	// Значение косинус фи канала 4 x1000
+#define REG_RESULT_I4					210	// Результат по току канала 4 мА
+#define REG_RESULT_I4_ACT				211	// Результат по активному току канала 4 мА
+#define REG_RESULT_COS_PHI4				212	// Значение косинус фи канала 4
 
 #define REG_FAILED_CURRENT_CHANNEL		221	// Номер отказавшего канала тока
 
