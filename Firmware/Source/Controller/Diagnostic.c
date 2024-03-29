@@ -51,6 +51,10 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			LL_SetDACOutput((Int16U)DataTable[REG_DBG_GENERAL]);
 			break;
 
+		case ACT_DBG_READ_OUTPUT_V_ADC:
+			DataTable[REG_DBG_GENERAL] = LL_ReadOutputVoltageADC();
+			break;
+
 		default:
 			return false;
 	}

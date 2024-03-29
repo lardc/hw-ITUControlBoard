@@ -1,6 +1,8 @@
 ﻿#ifndef __GLOBAL_H
 #define __GLOBAL_H
 
+#define CCMRAM						__attribute__((section(".ccmram")))
+
 // Параметры интерфейса
 #define	SCCI_TIMEOUT_TICKS			2000	// Таймаут интерфейса SCCI (в мс)
 #define EP_WRITE_COUNT				0		// Количество массивов для записи
@@ -16,9 +18,11 @@
 #define ADC_REF_VOLTAGE				3000.0f	// Опорное напряжение (в В)
 #define ADC_RESOLUTION				4095	// Разрешение АЦП
 #define ADC_DMA_SAMPLES 			4		// Количество сэмплов одного канала АЦП для ДМА
-#define ADC_DMA_VOLTAGE_SAMPLES	ADC_DMA_SAMPLES
-#define ADC_DMA_CURRENT_SAMPLES	(ADC_DMA_SAMPLES * 2)
+#define ADC_DMA_VOLTAGE_SAMPLES		ADC_DMA_SAMPLES
+#define ADC_DMA_CURRENT_SAMPLES		(ADC_DMA_SAMPLES * 2)
 #define PRIMARY_SAMPLE_DELAY		200		// Период оцифровки первичного напряжения, мс
+// Параметры смещения
+#define DAC_VALUE					2048	// Параметры смещения оцифровки
 
 // Параметры остановки / снижения ШИМ
 #define PWM_MIN_REDUCE_RATE			50		// Минимальная скорость снижения ШИМ в тиках

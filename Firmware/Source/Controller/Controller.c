@@ -12,6 +12,7 @@
 #include "BCCIxParams.h"
 #include "MeasureAC.h"
 #include "MeasureUtils.h"
+#include "Global.h"
 #include <math.h>
 
 // Types
@@ -47,10 +48,10 @@ float MEMBUF_Values_Irms2[VALUES_x_SIZE];
 float MEMBUF_Values_Irms3[VALUES_x_SIZE];
 float MEMBUF_Values_Irms4[VALUES_x_SIZE];
 
-Int16S MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
-Int16S MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
-Int16S MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
-Int16S MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi1[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi2[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi3[VALUES_x_SIZE];
+CCMRAM Int16S MEMBUF_Values_CosPhi4[VALUES_x_SIZE];
 
 Int16S MEMBUF_Values_PWM[VALUES_x_SIZE];
 Int16S MEMBUF_Values_Err[VALUES_x_SIZE];
@@ -218,6 +219,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_STOP:
 			if(CONTROL_State == DS_InProcess)
 				MAC_RequestStop(PBR_RequestSoftStop);
+			//CONTROL_RequestStop();
 			break;
 
 		case ACT_FAULT_CLEAR:
@@ -246,7 +248,7 @@ void CONTROL_StartSequence()
 {
 	// Проверка напряжения первичной стороны
 	float RelativeVoltage = fabsf(LastBatteryVoltage - DataTable[REG_PRIM_VOLTAGE]) / DataTable[REG_PRIM_VOLTAGE];
-	if(fabsf(1.0f - RelativeVoltage) <= DataTable[REG_PRIM_VOLTAGE_MAX_ERR] / 100)
+	if(RelativeVoltage <= DataTable[REG_PRIM_VOLTAGE_MAX_ERR] / 100)
 	{
 		MU_StartScope();
 		MAC_StartProcess();

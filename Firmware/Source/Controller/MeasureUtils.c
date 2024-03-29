@@ -88,7 +88,7 @@ void MU_LoadParams(Coefficients *coeff, uint16_t RegStartIndex)
 }
 //------------------------------------------
 
-float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
+CCMRAM float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 {
 	// Смещение
 	Value -= coeff->RawShift;
@@ -107,14 +107,14 @@ float MU_SingleConversionX(Coefficients *coeff, float Value, bool IsCurrent)
 }
 //------------------------------------------
 
-float MU_SingleFineTuningX(Coefficients *coeff, float Value)
+CCMRAM float MU_SingleFineTuningX(Coefficients *coeff, float Value)
 {
 	// Тонкая корректировка
 	return Value * Value * coeff->P2 + Value * coeff->P1 + coeff->P0;
 }
 //------------------------------------------
 
-void MU_GetSampleData(pSampleData Result)
+CCMRAM void MU_GetSampleData(pSampleData Result)
 {
 	int i;
 	float Voltage = 0;
@@ -129,17 +129,17 @@ void MU_GetSampleData(pSampleData Result)
 	// Обработка данных тока
 	for(i = 0; i < ADC_DMA_CURRENT_SAMPLES; i += 2)
 	{
-		Current[0] += DMACurrent12[i];
-		Current[1] += DMACurrent12[i + 1];
-		Current[2] += DMACurrent34[i];
-		Current[3] += DMACurrent34[i + 1];
+		Current[1] += DMACurrent12[i];
+		Current[0] += DMACurrent12[i + 1];
+		Current[3] += DMACurrent34[i];
+		Current[2] += DMACurrent34[i + 1];
 	}
 	for(i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleConversionX(&CurrentCoeff[i], Current[i] * CURRENT_MPY_DIV, true);
 }
 //------------------------------------------
 
-void MU_ResultFineTuning(pSampleData Result)
+CCMRAM void MU_ResultFineTuning(pSampleData Result)
 {
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		Result->Current[i] = MU_SingleFineTuningX(&CurrentCoeff[i], Result->Current[i]);
@@ -173,7 +173,7 @@ void MU_LogScopeError(float Value)
 }
 //------------------------------------------
 
-void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM)
+CCMRAM void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int16S PWM)
 {
 	if(ScopeDivCounter++ >= ScopeDivCounterMax)
 	{
@@ -210,6 +210,9 @@ void MU_LogScopeValues(pSampleData Instant, pSampleData RMS, float *CosPhi, Int1
 
 float MU_GetPrimarySideVoltage()
 {
-	return LL_ReadInputVoltageADC() * RESOLUTION_MPY_DIV * ADC_REF_VOLTAGE * DataTable[REG_CAP_COEFF];
+	if(DataTable[REG_PRIM_IGNORE_CHECK])
+		return DataTable[REG_PRIM_VOLTAGE];
+	else
+		return LL_ReadInputVoltageADC() * RESOLUTION_MPY_DIV * ADC_REF_VOLTAGE * DataTable[REG_CAP_COEFF];
 }
 //------------------------------------------
