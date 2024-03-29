@@ -92,18 +92,20 @@ Int16S MAC_GetPWMReduceRate()
 
 void MAC_RequestStop(ProcessBreakReason Reason)
 {
-	if(State != PS_Break)
+	// Условие мягкой остановки
+	if(Reason == PBR_RequestSoftStop)
 	{
-		if(Reason == PBR_RequestSoftStop)
-			RequireSoftStop = true;
-
-		// Запрос на мягкую остановку имеет низший приоритет
-		else
+		if(State != PS_Break)
 		{
-			PWMReduceRate = MAC_GetPWMReduceRate();
-			State = PS_Break;
-			RequireSoftStop = false;
+			RequireSoftStop = true;
+			BreakReason = Reason;
 		}
+	}
+	else
+	{
+		PWMReduceRate = MAC_GetPWMReduceRate();
+		State = PS_Break;
+		RequireSoftStop = false;
 		BreakReason = Reason;
 	}
 }
@@ -363,15 +365,12 @@ CCMRAM void MAC_ControlCycle()
 			}
 		}
 
-		// Если ошибок нет, то расчёт нового значения ШИМ
-		if(BreakReason == PBR_None)
-		{
-			PWM = MAC_CalcPWMFromVoltageAmplitude();
+		// Расчёт нового значения ШИМ
+		PWM = MAC_CalcPWMFromVoltageAmplitude();
 
-			// Проверка на насыщение
-			if(abs(PWM) == PWMLimit)
-				MAC_RequestStop(PBR_PWMSaturation);
-		}
+		// Проверка на насыщение
+		if(abs(PWM) == PWMLimit)
+			MAC_RequestStop(PBR_PWMSaturation);
 	}
 	MAC_SetPWM(PWM);
 
