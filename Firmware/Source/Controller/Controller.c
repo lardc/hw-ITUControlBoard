@@ -206,18 +206,17 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 				float LimitIrms = DataTable[REG_LIMIT_CURRENT_mA] + DataTable[REG_LIMIT_CURRENT_uA] * 0.001f;
 				if(LimitIrms > DataTable[REG_I_RANGE_HIGH])
 					*pUserError = ERR_BAD_CONFIG;
+
+				// Проверка контура безопасности
+				else if(LL_IsSafetyOK())
+				{
+					CONTROL_ResetResults();
+					CONTROL_StartSequence();
+				}
 				else
 				{
-					if(LL_IsSafetyOK())
-					{
-						CONTROL_ResetResults();
-						CONTROL_StartSequence();
-					}
-					else
-					{
-						DataTable[REG_PROBLEM] = PROBLEM_STOP;
-						break;
-					}
+					DataTable[REG_PROBLEM] = PROBLEM_STOP;
+					DataTable[REG_FINISHED] = OPRESULT_FAIL;
 				}
 			}
 			else

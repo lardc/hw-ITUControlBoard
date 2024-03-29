@@ -83,10 +83,10 @@ void MAC_SetPWM(Int16S pwm)
 }
 // ----------------------------------------
 
-Int16S MAC_GetPWMReduceRate(Int16S PWMDelta)
+Int16S MAC_GetPWMReduceRate()
 {
-	Int16S res = PWMDelta / PWM_REDUCE_RATE_MAX_STEPS + SIGN(PWMDelta);
-	return (abs(res) > PWM_MIN_REDUCE_RATE) ? res : (PWM_MIN_REDUCE_RATE * SIGN(PWMDelta));
+	Int16S res = PWM / PWM_REDUCE_RATE_MAX_STEPS;
+	return (abs(res) > PWM_MIN_REDUCE_RATE) ? res : (PWM_MIN_REDUCE_RATE * SIGN(res));
 }
 // ----------------------------------------
 
@@ -100,7 +100,7 @@ void MAC_RequestStop(ProcessBreakReason Reason)
 		// Запрос на мягкую остановку имеет низший приоритет
 		else
 		{
-			PWMReduceRate = MAC_GetPWMReduceRate(PWM);
+			PWMReduceRate = MAC_GetPWMReduceRate();
 			State = PS_Break;
 			RequireSoftStop = false;
 		}
@@ -259,11 +259,8 @@ CCMRAM void MAC_ControlCycle()
 		MU_LogScopeError(PeriodError);
 
 		// Проверка на запрос остановки
-		if(State != PS_Break && RequireSoftStop)
-		{
-			PWMReduceRate = MAC_GetPWMReduceRate(PWM);
+		if(RequireSoftStop)
 			State = PS_Break;
-		}
 
 		// Проверка на ошибку следования
 		if(State != PS_Break && Kp && Ki && !DbgMutePWM &&
@@ -312,7 +309,7 @@ CCMRAM void MAC_ControlCycle()
 	// Расчёт и уставка ШИМ
 	if(State == PS_Break)
 	{
-		PWM = (abs(PWM) > abs(PWMReduceRate)) ? (PWM - PWMReduceRate) : 0;
+		PWM = ((abs(PWM) > abs(PWMReduceRate)) && !RequireSoftStop) ? (PWM - PWMReduceRate) : 0;
 
 		// Завершение процесса
 		if(PWM == 0)
