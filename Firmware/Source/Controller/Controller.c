@@ -208,8 +208,16 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 					*pUserError = ERR_BAD_CONFIG;
 				else
 				{
-					CONTROL_ResetResults();
-					CONTROL_StartSequence();
+					if(LL_IsSafetyOK())
+					{
+						CONTROL_ResetResults();
+						CONTROL_StartSequence();
+					}
+					else
+					{
+						DataTable[REG_PROBLEM] = PROBLEM_STOP;
+						break;
+					}
 				}
 			}
 			else
@@ -219,7 +227,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_STOP:
 			if(CONTROL_State == DS_InProcess)
 				MAC_RequestStop(PBR_RequestSoftStop);
-			//CONTROL_RequestStop();
 			break;
 
 		case ACT_FAULT_CLEAR:
