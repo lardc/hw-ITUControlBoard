@@ -84,6 +84,6 @@ void LL_EnableFan(bool NewState)
 
 bool LL_IsSafetyOK()
 {
-	return GPIO_GetState(GPIO_SAFETY);
+	return !GPIO_GetState(GPIO_SAFETY);
 }
 //-----------------------------
