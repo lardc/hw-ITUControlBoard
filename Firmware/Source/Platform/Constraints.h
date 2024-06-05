@@ -15,7 +15,7 @@
 #define K_MAX					1000
 #define K_DEF					1
 
-#define P2_MAX					1e-3f
+#define P2_MAX					1e-2f
 #define P2_MIN					(-P2_MAX)
 
 #define P1_MIN					0.1f
