@@ -23,6 +23,9 @@ GPIO_PortPinSettingMacro GPIO_R2 = 				{GPIOB, Pin_7};
 GPIO_PortPinSettingMacro GPIO_EXT_IND = 		{GPIOA, Pin_15};
 GPIO_PortPinSettingMacro GPIO_LED = 			{GPIOB, Pin_4};
 GPIO_PortPinSettingMacro GPIO_FAN = 			{GPIOB, Pin_3};
+GPIO_PortPinSettingMacro GPIO_PWR_EN1 =			{GPIOB, Pin_2};
+GPIO_PortPinSettingMacro GPIO_PWR_EN2 =			{GPIOB, Pin_10};
+GPIO_PortPinSettingMacro GPIO_PWR_EN3 =			{GPIOB, Pin_11};
 
 // Определения для входных портов
 GPIO_PortPinSettingMacro GPIO_SAFETY =			{GPIOB, Pin_13};

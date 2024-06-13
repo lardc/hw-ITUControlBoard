@@ -33,6 +33,9 @@ void INITCFG_ConfigIO()
 	GPIO_InitPushPullOutput(GPIO_EXT_IND);
 	GPIO_InitPushPullOutput(GPIO_LED);
 	GPIO_InitPushPullOutput(GPIO_FAN);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN1);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN2);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN3);
 	
 	// Входы цифровые
 	GPIO_InitInput(GPIO_SAFETY, Pull_Up);
