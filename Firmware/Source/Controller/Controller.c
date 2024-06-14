@@ -215,7 +215,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 					*pUserError = ERR_BAD_CONFIG;
 
 				// Проверка контура безопасности
-				else if(LL_IsSafetyOK())
+				else if(LL_IsSafetyOK() || DataTable[REG_IGNORE_HW_SAFETY] )
 				{
 					CONTROL_ResetResults();
 					CONTROL_StartSequence();
@@ -281,6 +281,7 @@ void CONTROL_SetDeviceState(DeviceState NewState)
 
 void CONTROL_SwitchStateToFault(Int16U FaultReason)
 {
+	CONTROL_SWITCH_PWROFF();
 	DataTable[REG_FAULT_REASON] = FaultReason;
 	CONTROL_SetDeviceState(DS_Fault);
 }
