@@ -24,6 +24,6 @@ uint16_t LL_ReadOutputVoltageADC();
 void LL_SetDACOutput(uint16_t Value);
 void LL_PWR_EN1(bool NewState);
 void LL_PWR_EN2(bool NewState);
-void LL_PWR_EN3(bool NewState);
+void LL_DIS_EN3(bool NewState);
 
 #endif //__LOWLEVEL_H

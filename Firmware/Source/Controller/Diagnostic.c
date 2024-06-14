@@ -63,8 +63,8 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			LL_PWR_EN2(DataTable[REG_DBG_GENERAL]);
 			break;
 
-		case ACT_DBG_SWITCH_PWR_3:
-			LL_PWR_EN3(DataTable[REG_DBG_GENERAL]);
+		case ACT_DBG_SWITCH_DIS_3:
+			LL_DIS_EN3(DataTable[REG_DBG_GENERAL]);
 			break;
 
 		default:

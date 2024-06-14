@@ -18,7 +18,7 @@
 #define ACT_DBG_READ_OUTPUT_V_ADC		18	// Чтение оцифровки напряжения HV стороны
 #define ACT_DBG_SWITCH_PWR_1			19  // Управление 1 силовым реле
 #define ACT_DBG_SWITCH_PWR_2			20	// Управление 2 силовым реле
-#define ACT_DBG_SWITCH_PWR_3			21	// Управление 3 силовым реле
+#define ACT_DBG_SWITCH_DIS_3			21	// Управление 3 силовым реле
 
 #define ACT_START						100	// Запуск формирования
 #define ACT_STOP						101	// Остановка формирования

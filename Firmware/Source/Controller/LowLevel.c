@@ -100,8 +100,8 @@ void LL_PWR_EN2(bool NewState)
 }
 //-----------------------------
 
-void LL_PWR_EN3(bool NewState)
+void LL_DIS_EN3(bool NewState)
 {
-	GPIO_SetState(GPIO_PWR_EN3, NewState);
+	GPIO_SetState(GPIO_DIS_EN3, NewState);
 }
 //-----------------------------
