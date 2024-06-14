@@ -33,7 +33,6 @@ volatile DeviceState CONTROL_State = DS_None;
 static Boolean CycleActive = false;
 volatile Int64U CONTROL_TimeCounter = 0;
 static float LastBatteryVoltage = 0;
-
 // Storage
 //
 float MEMBUF_Values_V[VALUES_x_SIZE];
@@ -67,6 +66,8 @@ void CONTROL_UpdateWatchDog();
 void CONTROL_ResetResults();
 void CONTROL_ResetToDefaultState();
 void CONTROL_StartSequence();
+void CONTROL_SWITCH_PWRON();
+void CONTROL_SWITCH_PWROFF();
 
 // Functions
 //
@@ -185,7 +186,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
+			{
+				CONTROL_SWITCH_PWRON();
 				CONTROL_SetDeviceState(DS_Ready);
+			}
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_DEVICE_NOT_READY;
 			break;
@@ -194,7 +198,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			if(CONTROL_State == DS_InProcess)
 				*pUserError = ERR_OPERATION_BLOCKED;
 			else
+			{
+				CONTROL_SWITCH_PWROFF();
 				CONTROL_SetDeviceState(DS_None);
+			}
 			break;
 
 		case ACT_START:
@@ -283,5 +290,22 @@ void CONTROL_UpdateWatchDog()
 {
 	if(BOOT_LOADER_VARIABLE != BOOT_LOADER_REQUEST)
 		IWDG_Refresh();
+}
+//------------------------------------------
+
+void CONTROL_SWITCH_PWRON()
+{
+	LL_DIS_EN3(true);
+	LL_PWR_EN1(true);
+	DELAY_MS(SOFT_TIME_DELAY);
+	LL_PWR_EN2(true);
+}
+//------------------------------------------
+
+void CONTROL_SWITCH_PWROFF()
+{
+	LL_PWR_EN2(false);
+	LL_PWR_EN1(false);
+	LL_DIS_EN3(false);
 }
 //------------------------------------------
