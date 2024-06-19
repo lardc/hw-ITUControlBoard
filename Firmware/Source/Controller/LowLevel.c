@@ -87,3 +87,21 @@ bool LL_IsSafetyOK()
 	return !GPIO_GetState(GPIO_SAFETY);
 }
 //-----------------------------
+
+void LL_PWR_EN1(bool NewState)
+{
+	GPIO_SetState(GPIO_PWR_EN1, NewState);
+}
+//-----------------------------
+
+void LL_PWR_EN2(bool NewState)
+{
+	GPIO_SetState(GPIO_PWR_EN2, NewState);
+}
+//-----------------------------
+
+void LL_DIS_EN3(bool NewState)
+{
+	GPIO_SetState(GPIO_DIS_EN3, NewState);
+}
+//-----------------------------

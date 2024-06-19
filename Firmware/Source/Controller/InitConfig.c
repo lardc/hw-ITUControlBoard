@@ -33,6 +33,9 @@ void INITCFG_ConfigIO()
 	GPIO_InitPushPullOutput(GPIO_EXT_IND);
 	GPIO_InitPushPullOutput(GPIO_LED);
 	GPIO_InitPushPullOutput(GPIO_FAN);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN1);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN2);
+	GPIO_InitPushPullOutput(GPIO_DIS_EN3);
 	
 	// Входы цифровые
 	GPIO_InitInput(GPIO_SAFETY, Pull_Up);
@@ -52,6 +55,7 @@ void INITCFG_ConfigIO()
 	GPIO_InitAltFunction(GPIO_ALT_UART_TX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_PWM1, AltFn_6);
 	GPIO_InitAltFunction(GPIO_ALT_PWM2, AltFn_6);
+
 }
 //------------------------------------------------
 
