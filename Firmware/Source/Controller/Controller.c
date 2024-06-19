@@ -66,8 +66,7 @@ void CONTROL_UpdateWatchDog();
 void CONTROL_ResetResults();
 void CONTROL_ResetToDefaultState();
 void CONTROL_StartSequence();
-void CONTROL_SWITCH_PWRON();
-void CONTROL_SWITCH_PWROFF();
+void CONTROL_PowerEnable(bool State);
 
 // Functions
 //
@@ -187,7 +186,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
 			{
-				CONTROL_SWITCH_PWRON();
+				CONTROL_PowerEnable(true);
 				CONTROL_SetDeviceState(DS_Ready);
 			}
 			else if(CONTROL_State != DS_Ready)
@@ -199,7 +198,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 				*pUserError = ERR_OPERATION_BLOCKED;
 			else
 			{
-				CONTROL_SWITCH_PWROFF();
+				CONTROL_PowerEnable(false);
 				CONTROL_SetDeviceState(DS_None);
 			}
 			break;
@@ -281,7 +280,7 @@ void CONTROL_SetDeviceState(DeviceState NewState)
 
 void CONTROL_SwitchStateToFault(Int16U FaultReason)
 {
-	CONTROL_SWITCH_PWROFF();
+	CONTROL_PowerEnable(false);
 	DataTable[REG_FAULT_REASON] = FaultReason;
 	CONTROL_SetDeviceState(DS_Fault);
 }
@@ -294,19 +293,12 @@ void CONTROL_UpdateWatchDog()
 }
 //------------------------------------------
 
-void CONTROL_SWITCH_PWRON()
+void CONTROL_PowerEnable(bool State)
 {
-	LL_DIS_EN3(true);
-	LL_PWR_EN1(true);
-	DELAY_MS(SOFT_TIME_DELAY);
-	LL_PWR_EN2(true);
-}
-//------------------------------------------
-
-void CONTROL_SWITCH_PWROFF()
-{
-	LL_PWR_EN2(false);
-	LL_PWR_EN1(false);
-	LL_DIS_EN3(false);
+	LL_DischargeStop(State);
+	LL_PowerSupply1(State);
+	if(State)
+		DELAY_MS(SOFT_TIME_DELAY);
+	LL_PowerSupply2_3(State);
 }
 //------------------------------------------

@@ -88,20 +88,20 @@ bool LL_IsSafetyOK()
 }
 //-----------------------------
 
-void LL_PWR_EN1(bool NewState)
+void LL_PowerSupply1(bool NewState)
 {
 	GPIO_SetState(GPIO_PWR_EN1, NewState);
 }
 //-----------------------------
 
-void LL_PWR_EN2(bool NewState)
+void LL_PowerSupply2_3(bool NewState)
 {
-	GPIO_SetState(GPIO_PWR_EN2, NewState);
+	GPIO_SetState(GPIO_PWR_EN2_3, NewState);
 }
 //-----------------------------
 
-void LL_DIS_EN3(bool NewState)
+void LL_DischargeStop(bool NewState)
 {
-	GPIO_SetState(GPIO_DIS_EN3, NewState);
+	GPIO_SetState(GPIO_DISCH_STOP, NewState);
 }
 //-----------------------------

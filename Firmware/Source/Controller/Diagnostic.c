@@ -56,15 +56,15 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			break;
 
 		case ACT_DBG_SWITCH_PWR_1:
-			LL_PWR_EN1(DataTable[REG_DBG_GENERAL]);
+			LL_PowerSupply1(DataTable[REG_DBG_GENERAL]);
 			break;
 
-		case ACT_DBG_SWITCH_PWR_2:
-			LL_PWR_EN2(DataTable[REG_DBG_GENERAL]);
+		case ACT_DBG_SWITCH_PWR_2_3:
+			LL_PowerSupply2_3(DataTable[REG_DBG_GENERAL]);
 			break;
 
-		case ACT_DBG_SWITCH_DIS_3:
-			LL_DIS_EN3(DataTable[REG_DBG_GENERAL]);
+		case ACT_DBG_SWITCH_DISCHARGE:
+			LL_DischargeStop(DataTable[REG_DBG_GENERAL]);
 			break;
 
 		default:
