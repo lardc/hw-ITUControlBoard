@@ -55,6 +55,18 @@ bool DIAG_HandleDiagnosticAction(uint16_t ActionID, uint16_t *pUserError)
 			DataTable[REG_DBG_GENERAL] = LL_ReadOutputVoltageADC();
 			break;
 
+		case ACT_DBG_SWITCH_PWR_1:
+			LL_PowerSupply1(DataTable[REG_DBG_GENERAL]);
+			break;
+
+		case ACT_DBG_SWITCH_PWR_2_3:
+			LL_PowerSupply2_3(DataTable[REG_DBG_GENERAL]);
+			break;
+
+		case ACT_DBG_SWITCH_DISCHARGE:
+			LL_DischargeStop(DataTable[REG_DBG_GENERAL]);
+			break;
+
 		default:
 			return false;
 	}

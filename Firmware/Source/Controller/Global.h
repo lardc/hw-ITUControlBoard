@@ -21,6 +21,7 @@
 #define ADC_DMA_VOLTAGE_SAMPLES		ADC_DMA_SAMPLES
 #define ADC_DMA_CURRENT_SAMPLES		(ADC_DMA_SAMPLES * 2)
 #define PRIMARY_SAMPLE_DELAY		200		// Период оцифровки первичного напряжения, мс
+#define SOFT_TIME_DELAY				1000	// Время задержки  между включением источников, мс
 // Параметры смещения
 #define DAC_VALUE					2048	// Параметры смещения оцифровки
 

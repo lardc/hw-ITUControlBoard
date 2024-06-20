@@ -16,6 +16,9 @@
 #define ACT_DBG_READ_INPUT_V_ADC		16	// Чтение оцифровки напряжения первичной стороны
 #define ACT_DBG_SET_DAC_OUTPUT			17	// Установить значение на выходе ЦАП
 #define ACT_DBG_READ_OUTPUT_V_ADC		18	// Чтение оцифровки напряжения HV стороны
+#define ACT_DBG_SWITCH_PWR_1			19	// Управление силовым БП1
+#define ACT_DBG_SWITCH_PWR_2_3			20	// Управление силовыми БП2, БП3
+#define ACT_DBG_SWITCH_DISCHARGE		21	// Управление цепью разряда
 
 #define ACT_START						100	// Запуск формирования
 #define ACT_STOP						101	// Остановка формирования

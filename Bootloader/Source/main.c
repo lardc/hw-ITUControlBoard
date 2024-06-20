@@ -64,12 +64,16 @@ void ConfigGPIO()
 	GPIO_InitPushPullOutput(GPIO_FAN);
 	GPIO_InitPushPullOutput(GPIO_ALT_PWM1);
 	GPIO_InitPushPullOutput(GPIO_ALT_PWM2);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN1);
+	GPIO_InitPushPullOutput(GPIO_PWR_EN2);
+	GPIO_InitPushPullOutput(GPIO_DIS_EN3);
 	
 	// Альтернативные функции портов
 	GPIO_InitAltFunction(GPIO_ALT_CAN_RX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_CAN_TX, AltFn_9);
 	GPIO_InitAltFunction(GPIO_ALT_UART_RX, AltFn_7);
 	GPIO_InitAltFunction(GPIO_ALT_UART_TX, AltFn_7);
+
 }
 //--------------------------------------------
 

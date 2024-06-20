@@ -33,7 +33,6 @@ volatile DeviceState CONTROL_State = DS_None;
 static Boolean CycleActive = false;
 volatile Int64U CONTROL_TimeCounter = 0;
 static float LastBatteryVoltage = 0;
-
 // Storage
 //
 float MEMBUF_Values_V[VALUES_x_SIZE];
@@ -67,6 +66,7 @@ void CONTROL_UpdateWatchDog();
 void CONTROL_ResetResults();
 void CONTROL_ResetToDefaultState();
 void CONTROL_StartSequence();
+void CONTROL_PowerEnable(bool State);
 
 // Functions
 //
@@ -185,7 +185,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	{
 		case ACT_ENABLE_POWER:
 			if(CONTROL_State == DS_None)
+			{
+				CONTROL_PowerEnable(true);
 				CONTROL_SetDeviceState(DS_Ready);
+			}
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_DEVICE_NOT_READY;
 			break;
@@ -194,7 +197,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			if(CONTROL_State == DS_InProcess)
 				*pUserError = ERR_OPERATION_BLOCKED;
 			else
+			{
+				CONTROL_PowerEnable(false);
 				CONTROL_SetDeviceState(DS_None);
+			}
 			break;
 
 		case ACT_START:
@@ -208,7 +214,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 					*pUserError = ERR_BAD_CONFIG;
 
 				// Проверка контура безопасности
-				else if(LL_IsSafetyOK())
+				else if(LL_IsSafetyOK() || DataTable[REG_IGNORE_HW_SAFETY] )
 				{
 					CONTROL_ResetResults();
 					CONTROL_StartSequence();
@@ -274,6 +280,7 @@ void CONTROL_SetDeviceState(DeviceState NewState)
 
 void CONTROL_SwitchStateToFault(Int16U FaultReason)
 {
+	CONTROL_PowerEnable(false);
 	DataTable[REG_FAULT_REASON] = FaultReason;
 	CONTROL_SetDeviceState(DS_Fault);
 }
@@ -283,5 +290,15 @@ void CONTROL_UpdateWatchDog()
 {
 	if(BOOT_LOADER_VARIABLE != BOOT_LOADER_REQUEST)
 		IWDG_Refresh();
+}
+//------------------------------------------
+
+void CONTROL_PowerEnable(bool State)
+{
+	LL_DischargeStop(State);
+	LL_PowerSupply1(State);
+	if(State)
+		DELAY_MS(SOFT_TIME_DELAY);
+	LL_PowerSupply2_3(State);
 }
 //------------------------------------------

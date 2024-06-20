@@ -26,6 +26,9 @@ GPIO_PortPinSettingMacro GPIO_LED = 			{GPIOB, Pin_4};
 GPIO_PortPinSettingMacro GPIO_FAN = 			{GPIOB, Pin_3};
 GPIO_PortPinSettingMacro GPIO_ALT_PWM1 =		{GPIOA, Pin_8};
 GPIO_PortPinSettingMacro GPIO_ALT_PWM2 =		{GPIOB, Pin_14};
+GPIO_PortPinSettingMacro GPIO_PWR_EN1 =			{GPIOB, Pin_2};
+GPIO_PortPinSettingMacro GPIO_PWR_EN2 =			{GPIOB, Pin_10};
+GPIO_PortPinSettingMacro GPIO_DIS_EN3 =			{GPIOB, Pin_11};
 
 // Альтернативные функции
 GPIO_PortPinSettingMacro GPIO_ALT_CAN_RX =		{GPIOA, Pin_11};
