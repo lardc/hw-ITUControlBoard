@@ -81,12 +81,9 @@
 #define TARGET_VOLTAGE_MAX		10500
 #define TARGET_VOLTAGE_DEF		1000
 
-// in Irms mA part
-#define ILIMIT_mA_MAX			100
-#define ILIMIT_mA_DEF			10
-
-// in Irms uA part
-#define ILIMIT_uA_MAX			999
+// in Irms mA
+#define ILIMIT_mA_MAX			10
+#define ILIMIT_mA_DEF			5
 
 // in sec
 #define VOLTAGE_PLATE_TIME_MIN	1
