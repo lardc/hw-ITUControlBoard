@@ -139,6 +139,7 @@
 #define REG_TEST_TIME					132	// Длительность формирования полки (в сек)
 #define REG_SCOPE_RATE					133	// Делитель логгирования данных
 #define REG_MIN_CURRENT					134	// Минимальный активный ток после выхода на полку (в мА)
+#define REG_DUT_PRESENSE_MASK			135	// Битовая маска наличия приборов в ЗУ
 
 #define REG_DBG_MUTE_PWM				171	// Mute PWM output
 
