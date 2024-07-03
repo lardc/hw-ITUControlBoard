@@ -48,6 +48,7 @@ static bool RingBufferFull;
 
 static Int16S MinSafePWM, PWM, PWMReduceRate;
 static Int16U FECounter, FECounterMax;
+static Int16U ShortCircuitCounters[CURRENT_CHANNELS];
 static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
 static float LimitIrms, Isat_level, Irange, MinIrms;
@@ -370,9 +371,20 @@ CCMRAM void MAC_ControlCycle()
 		// Условие определения КЗ
 		for(i = 0; i < CURRENT_CHANNELS; i++)
 		{
+			// В режиме игнорирования спайков считаем число тиков с превышением тока
+			bool CurrentSaturation = (fabsf(Instant.Current[i]) >= Isat_level);
+			if(SC_IGNORE_SPIKE)
+			{
+				if(CurrentSaturation)
+					ShortCircuitCounters[i]++;
+				else
+					ShortCircuitCounters[i] = 0;
+			}
+
 			float absActualInstantVoltageSet = fabsf(ActualInstantVoltageSet);
-			if(fabsf(Instant.Current[i]) >= Isat_level && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
-					fabsf(Instant.Voltage) < BR_DOWN_VOLTAGE_RATIO * absActualInstantVoltageSet)
+			if((SC_IGNORE_SPIKE && ShortCircuitCounters[i] >= SC_COUNTER) || (!SC_IGNORE_SPIKE &&
+					CurrentSaturation && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
+					fabsf(Instant.Voltage) < BR_DOWN_VOLTAGE_RATIO * absActualInstantVoltageSet))
 			{
 				SavedCosPhi[i] = 1.0f;
 				SavedRMS.Current[i] = Irange;
@@ -513,6 +525,8 @@ void MAC_InitStartState()
 	Ki_err = PeriodCorrection = 0;
 	ActualInstantVoltageSet = 0;
 	RequireSoftStop = false;
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+		ShortCircuitCounters[i] = 0;
 
 	// Очистка кольцевого буфера
 	for(int i = 0; i < SINE_PERIOD_PULSES; i++)
