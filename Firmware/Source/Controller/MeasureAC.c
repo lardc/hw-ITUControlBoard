@@ -54,7 +54,7 @@ static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInst
 static float LimitIrms, Isat_level, Irange, MinIrms;
 static float PWMLimit;
 static Int32U TimeCounter, PlateCounter, PlateCounterTop, FailedCurrentChannel;
-static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop;
+static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop, IgnoreSpike;
 
 static ProcessState State;
 static ProcessBreakReason BreakReason;
@@ -373,7 +373,7 @@ CCMRAM void MAC_ControlCycle()
 		{
 			// В режиме игнорирования спайков считаем число тиков с превышением тока
 			bool CurrentSaturation = (fabsf(Instant.Current[i]) >= Isat_level);
-			if(SC_IGNORE_SPIKE)
+			if(IgnoreSpike)
 			{
 				if(CurrentSaturation)
 					ShortCircuitCounters[i]++;
@@ -382,7 +382,7 @@ CCMRAM void MAC_ControlCycle()
 			}
 
 			float absActualInstantVoltageSet = fabsf(ActualInstantVoltageSet);
-			if((SC_IGNORE_SPIKE && ShortCircuitCounters[i] >= SC_COUNTER) || (!SC_IGNORE_SPIKE &&
+			if((IgnoreSpike && ShortCircuitCounters[i] >= SC_COUNTER) || (!IgnoreSpike &&
 					CurrentSaturation && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
 					fabsf(Instant.Voltage) < BR_DOWN_VOLTAGE_RATIO * absActualInstantVoltageSet))
 			{
@@ -510,6 +510,7 @@ void MAC_InitStartState()
 	TransAndPWMCoeff = T1PWM_GetPWMBase() / (DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
 	MinSafePWM = (PWM_FREQUENCY / 1000L) * PWM_MIN_TH * T1PWM_GetPWMBase() / 1000000L;
 	StopByActiveCurrent = DataTable[REG_STOP_BY_ACTIVE_CURRENT];
+	IgnoreSpike = DataTable[REG_IGNORE_SPIKE];
 	
 	FEAbsolute = DataTable[REG_FE_ABSOLUTE];
 	FERelative = DataTable[REG_FE_RELATIVE] / 100;
