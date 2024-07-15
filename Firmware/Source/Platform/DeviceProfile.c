@@ -133,7 +133,29 @@ void DEVPROFILE_FillNVPartDefault(void)
 static Boolean DEVPROFILE_Validate16(Int16U Address, Int16U Data)
 {
 	if(Address < DATA_TABLE_WP_START)
-		return (Constraint[Address].Min <= Data) && (Data <= Constraint[Address].Max);
+	{
+		Int16U MinVal = Constraint[Address].Min;
+		Int16U MaxVal = Constraint[Address].Max;
+
+		if(Address == REG_TEST_VOLTAGE)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE];
+		}
+		else if(Address == REG_TEST_TIME)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_TIME])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_TIME];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_TIME])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_TIME];
+		}
+
+		return (MinVal <= Data) && (Data <= MaxVal);
+	}
 	else
 		return FALSE;
 }
@@ -149,7 +171,29 @@ static Boolean DEVPROFILE_ValidateFloat(Int16U Address, float Data, float* LowLi
 		return TRUE;
 	}
 	else if(Address < DATA_TABLE_WP_START)
-		return (Constraint[Address].Min <= Data) && (Data <= Constraint[Address].Max);
+	{
+		float MinVal = Constraint[Address].Min;
+		float MaxVal = Constraint[Address].Max;
+
+		if(Address == REG_TEST_VOLTAGE)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE];
+		}
+		else if(Address == REG_TEST_TIME)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_TIME])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_TIME];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_TIME])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_TIME];
+		}
+
+		return (MinVal <= Data) && (Data <= MaxVal);
+	}
 	else
 		return FALSE;
 }

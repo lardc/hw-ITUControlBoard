@@ -109,10 +109,11 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{FAN_ON_MIN, FAN_ON_MAX, FAN_ON_DEF},									// 76
 		{0, SPIKE_COUNTER_MAX, 0},												// 77
 
-		{0, 0, 0},																// 78
-		{0, 0, 0},																// 79
-		{0, 0, 0},																// 80
-		{0, 0, 0},																// 81
+		{0, TARGET_VOLTAGE_MAX, 0},												// 78
+		{0, TARGET_VOLTAGE_MAX, 0},												// 79
+		{0, VOLTAGE_PLATE_TIME_MAX, 0},											// 80
+		{0, VOLTAGE_PLATE_TIME_MAX, 0},											// 81
+
 		{0, 0, 0},																// 82
 		{0, 0, 0},																// 83
 		{0, 0, 0},																// 84
