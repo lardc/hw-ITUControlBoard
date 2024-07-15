@@ -34,6 +34,5 @@
 #define SC_VOLTAGE_THR				200		// Максимальное напряжение при КЗ (в В)
 #define BR_DOWN_VOLTAGE_RATIO		0.7f	// Минимальное соотношение фактического напряжения уставки при пробое
 #define BR_DOWM_VOLTAGE_SET_MIN		500		// Минимальное напряжение уставки для определения пробоя (в В)
-#define SC_COUNTER					10		// Счётчик превышения тока КЗ
 
 #endif //  __GLOBAL_H

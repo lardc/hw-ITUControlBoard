@@ -93,6 +93,9 @@
 #define SCOPE_RATE_MAX			100		// skip 99 point, write 1
 #define SCOPE_RATE_DEF			4
 
+// in regulator ticks
+#define SPIKE_COUNTER_MAX		10
+
 // Types
 typedef struct __TableItemConstraint
 {
