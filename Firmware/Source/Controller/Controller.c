@@ -179,6 +179,13 @@ void CONTROL_Idle()
 	}
 	else if(CONTROL_TimeCounter > FanTurnOff)
 		LL_EnableFan(false);
+
+	// Сохранение отладочной информации
+	if(CurrentSpikeDetected && CONTROL_State == DS_Ready)
+	{
+		CurrentSpikeDetected = false;
+		STF_SaveDiagData();
+	}
 }
 //------------------------------------------
 

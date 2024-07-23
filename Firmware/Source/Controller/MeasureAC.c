@@ -55,6 +55,7 @@ static float LimitIrms, Isat_level, Irange, MinIrms;
 static float PWMLimit;
 static Int32U TimeCounter, PlateCounter, PlateCounterTop, FailedCurrentChannel;
 static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop;
+bool CurrentSpikeDetected;
 
 static ProcessState State;
 static ProcessBreakReason BreakReason;
@@ -381,6 +382,10 @@ CCMRAM void MAC_ControlCycle()
 					ShortCircuitCounters[i] = 0;
 			}
 
+			// Фиксация иголки по току
+			if(CurrentSaturation)
+				CurrentSpikeDetected = true;
+
 			float absActualInstantVoltageSet = fabsf(ActualInstantVoltageSet);
 			if((SpikeCounter && ShortCircuitCounters[i] >= SpikeCounter) || (!SpikeCounter &&
 					CurrentSaturation && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
@@ -440,7 +445,6 @@ CCMRAM void MAC_ControlCycle()
 	}
 }
 // ----------------------------------------
-
 
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi)
 {
@@ -526,6 +530,7 @@ void MAC_InitStartState()
 	Ki_err = PeriodCorrection = 0;
 	ActualInstantVoltageSet = 0;
 	RequireSoftStop = false;
+	CurrentSpikeDetected = false;
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		ShortCircuitCounters[i] = 0;
 

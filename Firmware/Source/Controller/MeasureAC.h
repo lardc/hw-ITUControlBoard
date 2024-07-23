@@ -21,6 +21,9 @@ typedef enum __ProcessBreakReason
 	PBR_MinCurrent
 } ProcessBreakReason;
 
+// Variables
+extern bool CurrentSpikeDetected;
+
 // Functions
 void MAC_StartProcess();
 void MAC_RequestStop(ProcessBreakReason Reason);
