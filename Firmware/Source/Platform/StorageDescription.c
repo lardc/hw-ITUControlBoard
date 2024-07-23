@@ -5,8 +5,11 @@
 // Variables
 RecordDescription StorageDescription[] =
 {
-		{"REG 1 Shunt Resistance (mOhm)",		DT_Int16U, 1},
-		{"EP 1 Array of current values",		DT_Int16U, 300},
+	{"FEP1 Voltage",	DT_Float,	VALUES_x_SIZE},
+	{"FEP2 Current1",	DT_Float, 	VALUES_x_SIZE},
+	{"FEP3 Current2",	DT_Float, 	VALUES_x_SIZE},
+	{"FEP4 Current3",	DT_Float, 	VALUES_x_SIZE},
+	{"FEP5 Current4",	DT_Float, 	VALUES_x_SIZE}
 };
 Int32U TablePointers[sizeof(StorageDescription) / sizeof(StorageDescription[0])] = {0};
 const Int16U StorageSize = sizeof(StorageDescription) / sizeof(StorageDescription[0]);
