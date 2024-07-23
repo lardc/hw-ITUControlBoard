@@ -323,5 +323,6 @@ void CONTROL_InitStoragePointers()
 	STF_AssignPointer(2, (Int32U)MEMBUF_Values_I2);
 	STF_AssignPointer(3, (Int32U)MEMBUF_Values_I3);
 	STF_AssignPointer(4, (Int32U)MEMBUF_Values_I4);
+	STF_AssignPointer(5, (Int32U)&MEMBUF_ScopeValues_Counter);
 }
 //------------------------------------------
