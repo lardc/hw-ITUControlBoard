@@ -31,7 +31,7 @@ typedef void (*FUNC_AsyncDelegate)();
 // Variables
 //
 volatile DeviceState CONTROL_State = DS_None;
-static Boolean CycleActive = false;
+static Boolean CycleActive = false, RequestDiagFlashErase = false;
 volatile Int64U CONTROL_TimeCounter = 0;
 static float LastBatteryVoltage = 0;
 
@@ -186,6 +186,12 @@ void CONTROL_Idle()
 		CurrentSpikeDetected = false;
 		STF_SaveDiagData();
 	}
+
+	if(RequestDiagFlashErase)
+	{
+		RequestDiagFlashErase = false;
+		STF_EraseDataSector();
+	}
 }
 //------------------------------------------
 
@@ -260,7 +266,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			break;
 
 		case ACT_FLASH_DIAG_ERASE:
-			STF_EraseDataSector();
+			RequestDiagFlashErase = true;
 			break;
 
 		default:
