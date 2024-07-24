@@ -15,7 +15,7 @@
 #define K_MAX					1000
 #define K_DEF					1
 
-#define P2_MAX					1e-2f
+#define P2_MAX					1e-1f
 #define P2_MIN					(-P2_MAX)
 
 #define P1_MIN					0.1f
@@ -77,24 +77,24 @@
 #define FAN_ON_DEF				30
 
 // in Vrms
-#define TARGET_VOLTAGE_MIN		1000
-#define TARGET_VOLTAGE_MAX		10500
-#define TARGET_VOLTAGE_DEF		1000
+#define TARGET_VOLTAGE_MIN		500
+#define TARGET_VOLTAGE_MAX		14000
+#define TARGET_VOLTAGE_DEF		500
 
-// in Irms mA part
-#define ILIMIT_mA_MAX			100
-#define ILIMIT_mA_DEF			10
-
-// in Irms uA part
-#define ILIMIT_uA_MAX			999
+// in Irms mA
+#define ILIMIT_mA_MAX			10
+#define ILIMIT_mA_DEF			5
 
 // in sec
-#define VOLTAGE_PLATE_TIME_MIN	1
-#define VOLTAGE_PLATE_TIME_MAX	60
-#define VOLTAGE_PLATE_TIME_DEF	1
+#define VOLTAGE_PLATE_TIME_MIN	5
+#define VOLTAGE_PLATE_TIME_MAX	300
+#define VOLTAGE_PLATE_TIME_DEF	5
 
 #define SCOPE_RATE_MAX			100		// skip 99 point, write 1
 #define SCOPE_RATE_DEF			4
+
+// in regulator ticks
+#define SPIKE_COUNTER_MAX		10
 
 // Types
 typedef struct __TableItemConstraint

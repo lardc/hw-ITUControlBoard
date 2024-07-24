@@ -14,6 +14,7 @@
 #include "MeasureUtils.h"
 #include "Global.h"
 #include <math.h>
+#include "SaveToFlash.h"
 
 // Types
 typedef enum __DeviceState
@@ -30,9 +31,10 @@ typedef void (*FUNC_AsyncDelegate)();
 // Variables
 //
 volatile DeviceState CONTROL_State = DS_None;
-static Boolean CycleActive = false;
+static Boolean CycleActive = false, RequestDiagFlashErase = false;
 volatile Int64U CONTROL_TimeCounter = 0;
 static float LastBatteryVoltage = 0;
+
 // Storage
 //
 float MEMBUF_Values_V[VALUES_x_SIZE];
@@ -67,6 +69,7 @@ void CONTROL_ResetResults();
 void CONTROL_ResetToDefaultState();
 void CONTROL_StartSequence();
 void CONTROL_PowerEnable(bool State);
+void CONTROL_InitStoragePointers();
 
 // Functions
 //
@@ -115,6 +118,8 @@ void CONTROL_Init()
 	// Сброс значений
 	DEVPROFILE_ResetControlSection();
 	CONTROL_ResetToDefaultState();
+	// Инициализация указателей на сохраняемые данные
+	CONTROL_InitStoragePointers();
 }
 //------------------------------------------
 
@@ -174,6 +179,19 @@ void CONTROL_Idle()
 	}
 	else if(CONTROL_TimeCounter > FanTurnOff)
 		LL_EnableFan(false);
+
+	// Сохранение отладочной информации
+	if(CurrentSpikeDetected && CONTROL_State == DS_Ready)
+	{
+		CurrentSpikeDetected = false;
+		STF_SaveDiagData();
+	}
+
+	if(RequestDiagFlashErase)
+	{
+		RequestDiagFlashErase = false;
+		STF_EraseDataSector();
+	}
 }
 //------------------------------------------
 
@@ -243,6 +261,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
+		case ACT_FLASH_DIAG_SAVE:
+			STF_SaveDiagData();
+			break;
+
+		case ACT_FLASH_DIAG_ERASE:
+			RequestDiagFlashErase = true;
+			break;
+
 		default:
 			return DIAG_HandleDiagnosticAction(ActionID, pUserError);
 	}
@@ -300,5 +326,16 @@ void CONTROL_PowerEnable(bool State)
 	if(State)
 		DELAY_MS(SOFT_TIME_DELAY);
 	LL_PowerSupply2_3(State);
+}
+//------------------------------------------
+
+void CONTROL_InitStoragePointers()
+{
+	STF_AssignPointer(0, (Int32U)MEMBUF_Values_V);
+	STF_AssignPointer(1, (Int32U)MEMBUF_Values_I1);
+	STF_AssignPointer(2, (Int32U)MEMBUF_Values_I2);
+	STF_AssignPointer(3, (Int32U)MEMBUF_Values_I3);
+	STF_AssignPointer(4, (Int32U)MEMBUF_Values_I4);
+	STF_AssignPointer(5, (Int32U)&MEMBUF_ScopeValues_Counter);
 }
 //------------------------------------------

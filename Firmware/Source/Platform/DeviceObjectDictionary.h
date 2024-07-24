@@ -28,6 +28,12 @@
 #define ACT_RESET_TO_DEFAULT			202	// Сброс DataTable в состояние по умолчанию
 
 #define ACT_BOOT_LOADER_REQUEST			320	// Перезапуск процессора с целью перепрограммирования
+
+#define ACT_FLASH_DIAG_READ_SYMBOL		330	// Выполнить чтение символа из памяти отладочной информации
+#define ACT_FLASH_DIAG_INIT_READ		331	// Инициализировать начало считывания отладочной информации
+
+#define ACT_FLASH_DIAG_SAVE				332	// Сохранение блока отладочной информации во флэш
+#define ACT_FLASH_DIAG_ERASE			333	// Стирание области отладочной информации
 // -----------------------------
 
 // Регистры
@@ -131,6 +137,11 @@
 #define REG_I_RANGE_HIGH				75	// Предел верхнего диапазона тока, мА
 
 #define REG_FAN_ON_TIME					76	// Время работы вентилятора после процесса формирования, с
+#define REG_IGNORE_SPIKE_TICKS			77	// Игнорировать игольчатый пробой (0 - выключено, >= 1 - число тиков выхода тока за диапазон)
+#define REG_CFG_OVERRIDE_MIN_VOLTAGE	78	// Переопределить минимальное разрешённое напряжение, В
+#define REG_CFG_OVERRIDE_MAX_VOLTAGE	79	// Переопределить максимальное разрешённое напряжение, В
+#define REG_CFG_OVERRIDE_MIN_TIME		80	// Переопределить минимальное разрешённое напряжение, cек
+#define REG_CFG_OVERRIDE_MAX_TIME		81	// Переопределить максимальное разрешённое напряжение, cек
 
 // Несохраняемы регистры чтения-записи
 #define REG_TEST_VOLTAGE				128	// Действующее напряжение уставки (в В)
@@ -138,6 +149,8 @@
 #define REG_STOP_BY_ACTIVE_CURRENT		131	// Режим остановки по активной составляющей тока
 #define REG_TEST_TIME					132	// Длительность формирования полки (в сек)
 #define REG_SCOPE_RATE					133	// Делитель логгирования данных
+#define REG_MIN_CURRENT					134	// Минимальный активный ток после выхода на полку (в мА)
+#define REG_DUT_PRESENSE_MASK			135	// Битовая маска наличия приборов в ЗУ
 
 #define REG_DBG_MUTE_PWM				171	// Mute PWM output
 
@@ -192,6 +205,8 @@
 #define REG_FWINFO_STR_LEN				260	// Length of the information string record
 #define REG_FWINFO_STR_BEGIN			261	// Begining of the information string record
 
+#define REG_MEM_SYMBOL					299	// Считанный по адресу памяти символ
+
 // Operation results
 #define OPRESULT_NONE					0	// No information or not finished
 #define OPRESULT_OK						1	// Operation was successful
@@ -227,6 +242,7 @@
 #define PROBLEM_STOP					1	// Stop by user command or safety signal
 #define PROBLEM_FOLLOWING_ERROR			2	// Following error
 #define PROBLEM_PWM_SATURATION			3	// PWM reached upper limit
+#define PROBLEM_MIN_CURRENT				4	// Ток после выхода на полку меньше заданного уровня
 
 //  Warning
 #define WARNING_NONE					0	// No warning

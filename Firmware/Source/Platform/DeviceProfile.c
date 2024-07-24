@@ -14,6 +14,7 @@
 #include "ZwNCAN.h"
 #include "ZwSCI.h"
 #include "BCCIMHighLevel.h"
+#include "SaveToFlash.h"
 
 // Types
 //
@@ -133,7 +134,29 @@ void DEVPROFILE_FillNVPartDefault(void)
 static Boolean DEVPROFILE_Validate16(Int16U Address, Int16U Data)
 {
 	if(Address < DATA_TABLE_WP_START)
-		return (Constraint[Address].Min <= Data) && (Data <= Constraint[Address].Max);
+	{
+		Int16U MinVal = Constraint[Address].Min;
+		Int16U MaxVal = Constraint[Address].Max;
+
+		if(Address == REG_TEST_VOLTAGE)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE];
+		}
+		else if(Address == REG_TEST_TIME)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_TIME])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_TIME];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_TIME])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_TIME];
+		}
+
+		return (MinVal <= Data) && (Data <= MaxVal);
+	}
 	else
 		return FALSE;
 }
@@ -149,7 +172,29 @@ static Boolean DEVPROFILE_ValidateFloat(Int16U Address, float Data, float* LowLi
 		return TRUE;
 	}
 	else if(Address < DATA_TABLE_WP_START)
-		return (Constraint[Address].Min <= Data) && (Data <= Constraint[Address].Max);
+	{
+		float MinVal = Constraint[Address].Min;
+		float MaxVal = Constraint[Address].Max;
+
+		if(Address == REG_TEST_VOLTAGE)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_VOLTAGE];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_VOLTAGE];
+		}
+		else if(Address == REG_TEST_TIME)
+		{
+			if(DataTable[REG_CFG_OVERRIDE_MIN_TIME])
+				MinVal = DataTable[REG_CFG_OVERRIDE_MIN_TIME];
+
+			if(DataTable[REG_CFG_OVERRIDE_MAX_TIME])
+				MaxVal = DataTable[REG_CFG_OVERRIDE_MAX_TIME];
+		}
+
+		return (MinVal <= Data) && (Data <= MaxVal);
+	}
 	else
 		return FALSE;
 }
@@ -157,6 +202,7 @@ static Boolean DEVPROFILE_ValidateFloat(Int16U Address, float Data, float* LowLi
 
 static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
+	static Int32U MemoryPointer = 0;
 	switch (ActionID)
 	{
 		case ACT_SAVE_TO_ROM:
@@ -173,6 +219,15 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_BOOT_LOADER_REQUEST:
 			BOOT_LOADER_VARIABLE = BOOT_LOADER_REQUEST;
+			break;
+
+		case ACT_FLASH_DIAG_READ_SYMBOL:
+			DataTable[REG_MEM_SYMBOL] = NFLASH_ReadWord16(MemoryPointer);
+			MemoryPointer += 2;
+			break;
+
+		case ACT_FLASH_DIAG_INIT_READ:
+			MemoryPointer = FLASH_DIAG_START_ADDR;
 			break;
 
 		default:
@@ -262,7 +317,14 @@ Int16U DEVPROFILE_CallbackReadX(Int16U Endpoint, pInt16U* Buffer, Boolean Stream
 	
 	// Update content state
 	epState->LastReadCounter = epState->ReadCounter;
-	epState->ReadCounter += pLen;
+	// Патч для многократного считывания EP
+	if(!Streamed)
+	{
+		if(pLen == 0)
+			epState->ReadCounter = 0;
+		else
+			epState->ReadCounter += pLen;
+	}
 	
 	return pLen;
 }
@@ -291,6 +353,10 @@ Int16U DEVPROFILE_CallbackReadFastFloatX(Int16U Endpoint, float** Buffer, void* 
 	// Update content state
 	epState->LastReadCounter = epState->ReadCounter;
 	epState->ReadCounter += pLen;
+
+	// Патч для многократного считывания EP
+	if(pLen == 0)
+		epState->ReadCounter = 0;
 
 	return pLen;
 }

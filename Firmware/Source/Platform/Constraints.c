@@ -107,12 +107,13 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{ILIM_MIN, ILIM_MAX, ILIM_DEF},											// 75
 
 		{FAN_ON_MIN, FAN_ON_MAX, FAN_ON_DEF},									// 76
+		{0, SPIKE_COUNTER_MAX, 0},												// 77
 
-		{0, 0, 0},																// 77
-		{0, 0, 0},																// 78
-		{0, 0, 0},																// 79
-		{0, 0, 0},																// 80
-		{0, 0, 0},																// 81
+		{0, TARGET_VOLTAGE_MAX, 0},												// 78
+		{0, TARGET_VOLTAGE_MAX, 0},												// 79
+		{0, VOLTAGE_PLATE_TIME_MAX, 0},											// 80
+		{0, VOLTAGE_PLATE_TIME_MAX, 0},											// 81
+
 		{0, 0, 0},																// 82
 		{0, 0, 0},																// 83
 		{0, 0, 0},																// 84
@@ -162,13 +163,13 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 
 		{TARGET_VOLTAGE_MIN, TARGET_VOLTAGE_MAX, TARGET_VOLTAGE_DEF},			// 128
 		{0, ILIMIT_mA_MAX, ILIMIT_mA_DEF},										// 129
-		{0, ILIMIT_uA_MAX, 0},													// 130
+		{0, 0, 0},																// 130
 		{NO, YES, NO},															// 131
 		{VOLTAGE_PLATE_TIME_MIN, VOLTAGE_PLATE_TIME_MAX, VOLTAGE_PLATE_TIME_DEF},	// 132
 		{0, SCOPE_RATE_MAX, SCOPE_RATE_DEF},									// 133
+		{0, ILIMIT_mA_MAX, 0},													// 134
+		{0, 0xF, 0},															// 135
 
-		{0, 0, 0},																// 134
-		{0, 0, 0},																// 135
 		{0, 0, 0},																// 136
 		{0, 0, 0},																// 137
 		{0, 0, 0},																// 138

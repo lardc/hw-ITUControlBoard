@@ -47,13 +47,15 @@ static Int16U RingBufferPointer;
 static bool RingBufferFull;
 
 static Int16S MinSafePWM, PWM, PWMReduceRate;
-static Int16U FECounter, FECounterMax;
+static Int16U FECounter, FECounterMax, SpikeCounter, DUTMask;
+static Int16U ShortCircuitCounters[CURRENT_CHANNELS];
 static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
-static float LimitIrms, Isat_level, Irange;
+static float LimitIrms, Isat_level, Irange, MinIrms;
 static float PWMLimit;
 static Int32U TimeCounter, PlateCounter, PlateCounterTop, FailedCurrentChannel;
 static bool DbgMutePWM, StopByActiveCurrent, RequireSoftStop;
+bool CurrentSpikeDetected;
 
 static ProcessState State;
 static ProcessBreakReason BreakReason;
@@ -264,6 +266,20 @@ CCMRAM void MAC_ControlCycle()
 		if(RequireSoftStop)
 			State = PS_Break;
 
+		// Проверка на минимальный ток
+		if(State == PS_Plate && MinIrms)
+		{
+			for(i = 0; i < CURRENT_CHANNELS; i++)
+			{
+				if((DUTMask & (1 << i)) && RMS.Current[i] < MinIrms)
+				{
+					MAC_RequestStop(PBR_MinCurrent);
+					FailedCurrentChannel = i;
+					break;
+				}
+			}
+		}
+
 		// Проверка на ошибку следования
 		if(State != PS_Break && Kp && Ki && !DbgMutePWM &&
 				fabsf(PeriodError) > (FERelative * ControlVrms) && fabsf(PeriodError) > FEAbsolute)
@@ -341,6 +357,11 @@ CCMRAM void MAC_ControlCycle()
 					DataTable[REG_PROBLEM] = PROBLEM_PWM_SATURATION;
 					DataTable[REG_FINISHED] = OPRESULT_FAIL;
 					break;
+
+				case PBR_MinCurrent:
+					DataTable[REG_PROBLEM] = PROBLEM_MIN_CURRENT;
+					DataTable[REG_FINISHED] = OPRESULT_FAIL;
+					break;
 			}
 
 			CONTROL_RequestStop();
@@ -351,9 +372,24 @@ CCMRAM void MAC_ControlCycle()
 		// Условие определения КЗ
 		for(i = 0; i < CURRENT_CHANNELS; i++)
 		{
+			// В режиме игнорирования спайков считаем число тиков с превышением тока
+			bool CurrentSaturation = (fabsf(Instant.Current[i]) >= Isat_level);
+			if(SpikeCounter)
+			{
+				if(CurrentSaturation)
+					ShortCircuitCounters[i]++;
+				else
+					ShortCircuitCounters[i] = 0;
+			}
+
+			// Фиксация иголки по току
+			if(CurrentSaturation)
+				CurrentSpikeDetected = true;
+
 			float absActualInstantVoltageSet = fabsf(ActualInstantVoltageSet);
-			if(fabsf(Instant.Current[i]) >= Isat_level && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
-					fabsf(Instant.Voltage) < BR_DOWN_VOLTAGE_RATIO * absActualInstantVoltageSet)
+			if((SpikeCounter && ShortCircuitCounters[i] >= SpikeCounter) || (!SpikeCounter &&
+					CurrentSaturation && absActualInstantVoltageSet > BR_DOWM_VOLTAGE_SET_MIN &&
+					fabsf(Instant.Voltage) < BR_DOWN_VOLTAGE_RATIO * absActualInstantVoltageSet))
 			{
 				SavedCosPhi[i] = 1.0f;
 				SavedRMS.Current[i] = Irange;
@@ -410,7 +446,6 @@ CCMRAM void MAC_ControlCycle()
 }
 // ----------------------------------------
 
-
 void MAC_SaveResultToDT(pSampleData RMS, float *CosPhi)
 {
 	const Int16U RegStep = REG_RESULT_I2 - REG_RESULT_I1, BaseReg = REG_RESULT_I1;
@@ -466,6 +501,7 @@ void MAC_InitStartState()
 {
 	TargetVrms = DataTable[REG_TEST_VOLTAGE];
 	LimitIrms = DataTable[REG_LIMIT_CURRENT];
+	MinIrms = DataTable[REG_MIN_CURRENT];
 	
 	ControlVrms = DataTable[REG_START_VOLTAGE];
 
@@ -478,6 +514,7 @@ void MAC_InitStartState()
 	TransAndPWMCoeff = T1PWM_GetPWMBase() / (DataTable[REG_PRIM_VOLTAGE] * DataTable[REG_TRANSFORMER_COFF]);
 	MinSafePWM = (PWM_FREQUENCY / 1000L) * PWM_MIN_TH * T1PWM_GetPWMBase() / 1000000L;
 	StopByActiveCurrent = DataTable[REG_STOP_BY_ACTIVE_CURRENT];
+	SpikeCounter = DataTable[REG_IGNORE_SPIKE_TICKS];
 	
 	FEAbsolute = DataTable[REG_FE_ABSOLUTE];
 	FERelative = DataTable[REG_FE_RELATIVE] / 100;
@@ -493,6 +530,10 @@ void MAC_InitStartState()
 	Ki_err = PeriodCorrection = 0;
 	ActualInstantVoltageSet = 0;
 	RequireSoftStop = false;
+	CurrentSpikeDetected = false;
+	DUTMask = DataTable[REG_DUT_PRESENSE_MASK];
+	for(int i = 0; i < CURRENT_CHANNELS; i++)
+		ShortCircuitCounters[i] = 0;
 
 	// Очистка кольцевого буфера
 	for(int i = 0; i < SINE_PERIOD_PULSES; i++)
