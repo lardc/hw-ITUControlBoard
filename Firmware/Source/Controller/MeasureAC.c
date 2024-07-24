@@ -47,7 +47,7 @@ static Int16U RingBufferPointer;
 static bool RingBufferFull;
 
 static Int16S MinSafePWM, PWM, PWMReduceRate;
-static Int16U FECounter, FECounterMax, SpikeCounter;
+static Int16U FECounter, FECounterMax, SpikeCounter, DUTMask;
 static Int16U ShortCircuitCounters[CURRENT_CHANNELS];
 static float TransAndPWMCoeff, Ki_err, Kp, Ki, FEAbsolute, FERelative;
 static float TargetVrms, ControlVrms, PeriodCorrection, VrmsRateStep, ActualInstantVoltageSet;
@@ -271,7 +271,7 @@ CCMRAM void MAC_ControlCycle()
 		{
 			for(i = 0; i < CURRENT_CHANNELS; i++)
 			{
-				if(RMS.Current[i] < MinIrms)
+				if((DUTMask & (1 << i)) && RMS.Current[i] < MinIrms)
 				{
 					MAC_RequestStop(PBR_MinCurrent);
 					FailedCurrentChannel = i;
@@ -531,6 +531,7 @@ void MAC_InitStartState()
 	ActualInstantVoltageSet = 0;
 	RequireSoftStop = false;
 	CurrentSpikeDetected = false;
+	DUTMask = DataTable[REG_DUT_PRESENSE_MASK];
 	for(int i = 0; i < CURRENT_CHANNELS; i++)
 		ShortCircuitCounters[i] = 0;
 
