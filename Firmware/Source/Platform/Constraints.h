@@ -79,7 +79,7 @@
 // in Vrms
 #define TARGET_VOLTAGE_MIN		500
 #define TARGET_VOLTAGE_MAX		14000
-#define TARGET_VOLTAGE_DEF		500
+#define TARGET_VOLTAGE_DEF		1000
 
 // in Irms mA
 #define ILIMIT_mA_MAX			10
