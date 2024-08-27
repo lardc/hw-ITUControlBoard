@@ -337,5 +337,24 @@ void CONTROL_InitStoragePointers()
 	STF_AssignPointer(3, (Int32U)MEMBUF_Values_I3);
 	STF_AssignPointer(4, (Int32U)MEMBUF_Values_I4);
 	STF_AssignPointer(5, (Int32U)&MEMBUF_ScopeValues_Counter);
+
+	STF_AssignPointer(6, (Int32U)&DataTable[REG_TEST_VOLTAGE]);
+	STF_AssignPointer(7, (Int32U)&DataTable[REG_LIMIT_CURRENT]);
+	STF_AssignPointer(8, (Int32U)&DataTable[REG_STOP_BY_ACTIVE_CURRENT]);
+	STF_AssignPointer(9, (Int32U)&DataTable[REG_TEST_TIME]);
+	STF_AssignPointer(10, (Int32U)&DataTable[REG_SCOPE_RATE]);
+	STF_AssignPointer(11, (Int32U)&DataTable[REG_MIN_CURRENT]);
+	STF_AssignPointer(12, (Int32U)&DataTable[REG_DUT_PRESENSE_MASK]);
+
+	STF_AssignPointer(13, (Int32U)&DataTable[REG_RESULT_V]);
+	STF_AssignPointer(14, (Int32U)&DataTable[REG_RESULT_I1]);
+	STF_AssignPointer(15, (Int32U)&DataTable[REG_RESULT_I1_ACT]);
+	STF_AssignPointer(16, (Int32U)&DataTable[REG_RESULT_I2]);
+	STF_AssignPointer(17, (Int32U)&DataTable[REG_RESULT_I2_ACT]);
+	STF_AssignPointer(18, (Int32U)&DataTable[REG_RESULT_I3]);
+	STF_AssignPointer(19, (Int32U)&DataTable[REG_RESULT_I3_ACT]);
+	STF_AssignPointer(20, (Int32U)&DataTable[REG_RESULT_I4]);
+	STF_AssignPointer(21, (Int32U)&DataTable[REG_RESULT_I4_ACT]);
+	STF_AssignPointer(22, (Int32U)&DataTable[REG_FAILED_CURRENT_CHANNEL]);
 }
 //------------------------------------------
