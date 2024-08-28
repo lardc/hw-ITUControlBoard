@@ -184,7 +184,9 @@ void CONTROL_Idle()
 	if(CurrentSpikeDetected && CONTROL_State == DS_Ready)
 	{
 		CurrentSpikeDetected = false;
+		IWDG_ConfigureSlowUpdate();
 		STF_SaveDiagData();
+		IWDG_ConfigureFastUpdate();
 	}
 
 	if(RequestDiagFlashErase)
