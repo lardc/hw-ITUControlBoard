@@ -178,6 +178,8 @@ void INITCFG_ADC()
 	ADC_ChannelSeqReset(ADC3);
 	ADC_ChannelSeqReset(ADC4);
 
+	ADC_ChannelSet_SampleTime(ADC4, ADC4_IN_VOLTAGE_CHANNEL, ADC_SMPL_TIME_601_5);
+
 	for (uint8_t i = 1; i <= ADC_DMA_VOLTAGE_SAMPLES; i++)
 		ADC_ChannelSet_Sequence(ADC3, ADC3_OUT_VOLTAGE_CHANNEL, i);
 
