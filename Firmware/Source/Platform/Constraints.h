@@ -53,7 +53,7 @@
 
 // in X:1
 #define TRANS_COEFF_MIN			50
-#define TRANS_COEFF_MAX			150
+#define TRANS_COEFF_MAX			170
 #define TRANS_COEFF_DEF			100
 
 // in Vdc
